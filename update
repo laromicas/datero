@@ -1,0 +1,54 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+import os
+import argparse
+from tabulate import tabulate
+from prettytable import PrettyTable
+
+from lib.repositories import repos_db
+# from lib.repositories.seeds.dat_repos import repositories
+
+
+ROOT_DIR=os.path.dirname(os.path.abspath(__file__))	# get current directory
+
+def parse_args():
+    parser = argparse.ArgumentParser(description='update the datfiles')
+    subparsers = parser.add_subparsers(help='command')
+
+    parser_list = subparsers.add_parser('list', help='list dat sources to update')
+    parser_list.set_defaults(func=list_dat_sources)
+    parser_update = subparsers.add_parser('update', help='update dat sources')
+    parser_update.add_argument('-a', '--all', action='store_true', help='update all dat sources')
+    parser_update.add_argument('-s', '--source', help='update specific dat source')
+    parser_update.set_defaults(func=update_dat_sources)
+    # parser.add_argument('--force', '-f', action='store_true', help='Force update')
+    args = parser.parse_args()
+
+    return args
+
+
+def list_dat_sources(args):
+    print('Listing dat sources')
+    dat_sources = [{'name': x['name'], 'description': x['description']
+                    [0:35]+'...', 'url': x['url']} for x in repos_db.get_all().values()]
+    print(tabulate(dat_sources, headers='keys', tablefmt='fancy_grid'))
+
+    # x = PrettyTable()
+    # x.field_names = dat_sources[0].keys()
+    # for values in dat_sources:
+    #     x.add_row([values[i] for i in x.field_names])
+
+    # print(x)
+
+
+def update_dat_sources(args):
+    print('Updating dat sources')
+    for root, dirs, files in os.walk(os.path.join(ROOT_DIR, 'dat')):
+        for file in files:
+            if file.endswith('.dat'):
+                print(os.path.join(root, file))
+                os.system('dat2json ' + os.path.join(root, file))
+
+if __name__ == '__main__':
+    args = parse_args()
+    args.func(args)

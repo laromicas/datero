@@ -1,0 +1,25 @@
+#!/usr/bin/env python
+from tinydb import TinyDB, Query
+
+db = TinyDB('db.json')
+
+db.insert({'name': 'John', 'rank': 2})
+
+db.insert({'name': 'Peter', 'rank': 1, 'age': 'unknown'})
+
+table = db.table('fruits')
+
+table.insert({'apples': 50})
+
+print (db)
+
+
+db.insert({'name': 'John', 'rank': 2})
+
+db.insert({'name': 'Peter', 'rank': 1})
+
+q = Query()
+
+result = db.search(q.name == 'John')
+
+print (result)
