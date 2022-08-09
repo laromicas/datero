@@ -3,10 +3,8 @@
 import os
 import argparse
 from tabulate import tabulate
-from prettytable import PrettyTable
 
-from lib.repositories import repos_db
-# from lib.repositories.seeds.dat_repos import repositories
+from lib.database import DB
 
 
 ROOT_DIR=os.path.dirname(os.path.abspath(__file__))	# get current directory
@@ -29,16 +27,11 @@ def parse_args():
 
 def list_dat_sources(args):
     print('Listing dat sources')
-    dat_sources = [{'name': x['name'], 'description': x['description']
-                    [0:35]+'...', 'url': x['url']} for x in repos_db.get_all().values()]
+    table = DB.table('repos')
+    dat_sources = [{'name': x['name'], 'short': x['short_name'],
+                    # 'description': x['description'][0:35]+'...',
+                    'url': x['url']} for x in table.all()]
     print(tabulate(dat_sources, headers='keys', tablefmt='fancy_grid'))
-
-    # x = PrettyTable()
-    # x.field_names = dat_sources[0].keys()
-    # for values in dat_sources:
-    #     x.add_row([values[i] for i in x.field_names])
-
-    # print(x)
 
 
 def update_dat_sources(args):

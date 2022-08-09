@@ -1,4 +1,6 @@
-from .. import repos_db
+# from lib.database import DB
+# from tinydb import Query
+from lib.database.models import Repo
 
 repositories = [
     {
@@ -19,11 +21,18 @@ repositories = [
         "update_script": "lib/redump/update",
         "type": "system"
     },
+    {
+        "name": "Translated-English",
+        "short_name": "t_en",
+        "description": "Translated-English is a collection of DATs aimed for video game translations.",
+        "url": "http://archive.org/En-ROMs/",
+        "icon": "http://archive.org/favicon.ico",
+        "update_script": "lib/t_en/update",
+        "type": "system"
+    },
 ]
 
-# print(repositories_db.get_all())
-
-for repository in repositories:
-    repos_db.add_or_update(query=lambda x: x['name'] == repository['name'], new_data=repository)
-repos_db.create_index('name')
-repos_db.commit()
+def __import__():
+    for repository in repositories:
+        repo = Repo(**repository)
+        repo.save()

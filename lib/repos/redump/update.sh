@@ -21,7 +21,6 @@ for f in $FILES; do
 	aria2c --file-allocation=prealloc -i ../$f.txt
 	cd ..
 done
-
 echo Uncompressing Datfiles
 cd ${DAT_ROOT}/Consoles/Redump
 for f in ${OTHERDAT_ROOT}/Redump/datfile/*.zip; do
@@ -43,6 +42,10 @@ cp ${OTHERDAT_ROOT}/Redump/bios/* .
 echo Sending TrrntZipping cues to Background
 cd ${OTHERDAT_ROOT}/Redump/cues
 (ls -1a | parallel -j 8 TrrntZip > /dev/null 2>&1 & )
+
+#############################################################################################
+#### Aqui voy
+#############################################################################################
 
 cd /mnt/e/ROMVault/FixDats
 echo Deduping Datfiles

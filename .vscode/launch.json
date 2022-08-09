@@ -11,6 +11,32 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "justMyCode": true
+        },
+        {
+            "name": "Python: Update No-Intro",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "-p",
+                "-d",
+                "Xbox"
+            ]
+        },
+        {
+            "name": "Python: Update Redump",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "-p",
+                "-d",
+                "Archimedes"
+            ]
         }
     ]
 }

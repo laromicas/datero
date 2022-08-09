@@ -1,0 +1,21 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+from lib.database import DB
+from lib.database.seeds import dat_repos
+from lib.database.seeds import dat_rules
+
+with DB as DB:
+    dat_repos.__import__()
+    dat_rules.__import__()
+
+
+# https://archive.org/details/3ds-cdn-supplement
+# https: //archive.org/details/3ds-cdn-supplement_2
+# nirsoft
+# joeware.net
+# https://mitec.cc/
+
+# with DB as DB:
+#     all = DB.table('dats').all()
+#     [print(f"\"{x['company']}\"", f"\"{x['system']}\"") for x in all]

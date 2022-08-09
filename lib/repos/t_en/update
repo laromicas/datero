@@ -1,0 +1,57 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+import os
+import argparse
+import sys
+
+if not os.getcwd() in sys.path:
+    sys.path.append(os.getcwd())
+
+from lib import Settings
+from lib.actions.processor import Processor
+
+FOLDER = {
+    "actions": [
+        {
+            'action': 'LoadDatFile',
+            'class_name': 'lib.dat.t_en.TranslatedEnglishDat'
+        },
+        {
+            'action': 'DeleteOld'
+        },
+        {
+            'action': 'Copy',
+            'folder': 'DatRoot'
+        },
+        {
+            'action': 'SaveToDatabase'
+        }
+    ]
+}
+
+def parse_args():
+    parser = argparse.ArgumentParser(description='update Translated English datfiles')
+
+    # parser.add_argument('-dr', '--dat-root', help='Dat root directory')
+    parser.add_argument('-f', '--fetch', help='Fetch new datfiles', action='store_true')
+    parser.add_argument('-p', '--process', help='Process datfiles', action='store_true')
+    parser.add_argument('-d', '--dat', help='DatFile')
+    # parser.add_argument('-dr', '--dat-root', help='Dat root directory')
+
+    args = parser.parse_args()
+
+    return args
+
+if __name__ == '__main__':
+    args = parse_args()
+    if args.fetch:
+        os.system(os.path.join(os.path.dirname(__file__), 'fetch_dats.py'))
+    if args.process:
+        path = f'tmp/t-en/dats'
+        for file in os.listdir(path):
+            if file.endswith('.dat') and (not args.dat or args.dat in file):
+                print('Processing', file)
+                procesor = Processor(repo='t-en', file=f'{path}/{file}', actions=FOLDER['actions'])
+                procesor.process()
+                # print('t-en', f'{path}/{file}', FOLDER['actions'])
+        os.system(f'cd {Settings.DAT_ROOT} && find . -type d -empty -print -delete')
