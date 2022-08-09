@@ -1,32 +1,22 @@
+"""
+    No-Intro Dat class.
+"""
 import re
 import os
-from tinydb import Query
 from lib.dat import XMLDatFile
-from lib.database.models import Dat
 from lib import Settings
-from lib.database.models.datfile import System
 
 
 class NoIntroDat(XMLDatFile):
-
-
-    date_in_name = False
+    """ NoIntro Dat class. """
     repo: str = 'nointro'
-    name: str = None
-    full_name: str = None
-    file: str = None
-    modifier: str = None
-    company: str = None
-    system: str = None
-    system_type: str = None
-    preffix: str = None
-    suffix: str = None
-    path: str = None
 
     def initial_parse(self) -> list:
+        """ Parse the dat file. """
+        # pylint: disable=R0801
         name = self.name
 
-        suffixes = re.findall('\(.*?\)', self.full_name)
+        suffixes = re.findall(r'\(.*?\)', self.full_name)
         name = name.replace(' '.join(suffixes), '').strip()
         name_array = name.split(' - ')
 
@@ -69,24 +59,10 @@ class NoIntroDat(XMLDatFile):
 
 
     def get_date(self) -> str:
+        """ Get the date from the dat file. """
         if self.date:
             return self.date
-        elif self.file:
-            result = re.findall('\(.*?\)', self.file)
+        if self.file:
+            result = re.findall(r'\(.*?\)', self.file)
             self.date = result[len(result)-1][1:-1]
         return self.date
-
-
-    def dict(self) -> dict:
-        self.initial_parse()
-        return {
-            "name": self.name,
-            "file": self.file,
-            "full_name": self.full_name,
-            "date": self.get_date(),
-            "modifier": self.get_modifier(),
-            "company": self.get_company(),
-            "system": self.get_system(),
-            "system_type": self.get_system_type(),
-            "path": self.get_path()
-        }

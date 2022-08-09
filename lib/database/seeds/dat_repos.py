@@ -1,5 +1,6 @@
-# from lib.database import DB
-# from tinydb import Query
+"""
+    Seed the database with repositories.
+"""
 from lib.database.models import Repo
 
 repositories = [
@@ -32,7 +33,9 @@ repositories = [
     },
 ]
 
-def __import__():
+
+def _import_():
+    """ Seed the database with repositories. """
     for repository in repositories:
         repo = Repo(**repository)
         repo.save()

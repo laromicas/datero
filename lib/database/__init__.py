@@ -1,17 +1,21 @@
+"""
+    Database module
+"""
 import os
+
 from typing import Dict, Any
 from tinydb import TinyDB, JSONStorage
-from decouple import config
-
-from unittest import mock
-
 from tinydb.middlewares import CachingMiddleware
 
-os.makedirs(f"{os.path.join(os.getcwd(), config('DATABASE_PATH', default='database'))}", exist_ok=True)
+from lib import Settings
 
-DATABASE_URL = f"{config('DATABASE_PATH', default='database')}/{config('DATABASE_URL', default='database.json')}"
+
+os.makedirs(f"{os.path.join(os.getcwd(), Settings.DATABASE_PATH)}", exist_ok=True)
+
+DATABASE_URL = f"{Settings.DATABASE_PATH}/{Settings.DATABASE_URL}"
 
 class JSONStorageWithBackup(JSONStorage):
+    """ TinyDB JSON storage with backup. """
     path: str = DATABASE_URL
 
     def __init__(self, path: str, create_dirs=False, encoding=None, access_mode='r+', **kwargs):
@@ -19,10 +23,12 @@ class JSONStorageWithBackup(JSONStorage):
         super().__init__(path, create_dirs, encoding, access_mode, **kwargs)
 
     def write(self, data: Dict[str, Dict[str, Any]]):
+        """ Write data to the storage. """
         self.make_backup()
         super().write(data)
 
     def make_backup(self):
+        """ Make a backup of the database. """
         os.system(f"cp {self.path} {self.path}.bak")
 
 
