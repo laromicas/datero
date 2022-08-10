@@ -26,8 +26,9 @@ def clean():
 
 
 def main():
-    def download_dats(file):
+    def download_dats():
         download_daily()
+    download_dats()
 
     os.system(f'cd {TMP_DATS} && cp ../*.zip . && unzip -o \'*.zip\' && rm *.zip')
     os.system(f'cd {TMP_NOINTRO} && mv *.zip history/')

@@ -57,7 +57,7 @@ def sleep_time():
 #             break
 
 
-def is_download_finished():
+def is_download_finished() -> bool:
     firefox_temp_file = sorted(Path(TMP_FOLDER).glob('*.part'))
     chrome_temp_file = sorted(Path(TMP_FOLDER).glob('*.crdownload'))
     downloaded_files = sorted(Path(TMP_FOLDER).glob('*.*'))
@@ -68,10 +68,17 @@ def is_download_finished():
     else:
         return False
 
-def download_daily():
 
+def downloads_disabled(driver) -> bool:
+    words = ['temporary suspended', 'temporary disabled']
+    for word in words:
+        if word in driver.page_source:
+            return True
+    return False
+
+def download_daily():
     options = FirefoxOptions()
-    options.add_argument("--headless")
+    # options.add_argument("--headless")
     options.set_capability("marionette", True)
     options.set_preference("browser.download.folderList", 2)
     options.set_preference("browser.download.manager.showWhenStarting", False)
@@ -86,30 +93,41 @@ def download_daily():
     driver.get("https://datomatic.no-intro.org")
 
     sleep_time()
-    # driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS)
-    text = 'Download'
-    download_button = driver.find_element(By.XPATH, "//a[contains(text(), 'Download')]")
-    download_button.click()
 
-    sleep_time()
-    daily_link = driver.find_element(By.XPATH, "//a[contains(text(), 'Daily')]")
-    daily_link.click()
 
-    sleep_time()
+    try:
 
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    prepare_button = driver.find_element(By.CSS_SELECTOR, "form[name='daily'] input[type='submit']")
+        if downloads_disabled(driver):
+            print("Downloads suspended")
+            driver.close()
+            exit(1)
 
-    sleep_time()
-    prepare_button.click()
+        # driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS)
+        download_button = driver.find_element(By.XPATH, "//a[contains(text(), 'Download')]")
+        download_button.click()
 
-    sleep_time()
-    download_button = driver.find_element(By.CSS_SELECTOR, "form[name='opt_form'] input[name='lazy_mode']")
-    download_button.click()
+        sleep_time()
+        daily_link = driver.find_element(By.XPATH, "//a[contains(text(), 'Daily')]")
+        daily_link.click()
 
-    while not is_download_finished():
-        print("Waiting for download to finish")
-        time.sleep(10)
+        sleep_time()
+
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        prepare_button = driver.find_element(By.CSS_SELECTOR, "form[name='daily'] input[type='submit']")
+
+        sleep_time()
+        prepare_button.click()
+
+        sleep_time()
+        download_button = driver.find_element(By.CSS_SELECTOR, "form[name='opt_form'] input[name='lazy_mode']")
+        download_button.click()
+
+        while not is_download_finished():
+            print("Waiting for download to finish")
+            time.sleep(10)
+
+    except Exception as e:
+        print(e)
 
     driver.close()
 

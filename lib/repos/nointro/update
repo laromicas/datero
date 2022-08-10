@@ -47,8 +47,8 @@ if __name__ == '__main__':
     args = parse_args()
     if args.fetch:
 
-        print('Not implemented yet')
-        exit()
+        # print('Not implemented yet')
+        # exit()
         os.system(os.path.join(os.path.dirname(__file__), 'fetch_dats.py'))
     if args.process:
         path = f'tmp/nointro/dats'
