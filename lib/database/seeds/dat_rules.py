@@ -3,6 +3,7 @@
 """
 import json
 import requests
+from lib import Settings
 from lib.database.models import System
 
 fields = [
@@ -16,7 +17,7 @@ fields = [
 
 def get_systems():
     """ Get systems from the Google Sheets. """
-    result = requests.get('https://sheets.googleapis.com/v4/spreadsheets/1LgU7uJOtVOUWYkdoaeSbux41biFwpbzVosm98bgdN3k/values/Systems!A1:E300?key=AIzaSyA2pmHY5FVJFEjauoE8kKV6-UcCM4Tfk44')
+    result = requests.get(Settings.GOOGLE_SHEET_URL)
     systems_result = result.json()['values']
     systems = []
     for i in range(1, len(systems_result)):

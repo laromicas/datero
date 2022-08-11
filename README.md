@@ -1,3 +1,13 @@
+```
+    .___       __
+  __| _/____ _/  |_  ___________  ____
+ / __ |\__  \\   __\/ __ \_  __ \/  _ \
+/ /_/ | / __ \|  | \  ___/|  | \(  <_> )
+\____ |(____  /__|  \___  >__|   \____/
+     \/     \/          \/
+
+```
+
 # Datero
 Datero is a WIP Python command line tool to download and organize your Dat Roms.
 As today the tool supports dat-omatic, redump, and translated-english dats.
@@ -11,7 +21,7 @@ pip install foobar
 ```
 -->
 
-Download a release and install requirements (recommended to use a virtual environment)
+Download the code and install requirements (recommended to use a virtual environment)
 ```bash
 pip install -r requirements.txt
 ```

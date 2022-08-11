@@ -32,6 +32,7 @@ class Settings:
     OTHERDAT_ROOT = f'{ROMVAULT_PATH}/OtherDats'
     DATABASE_PATH = config('DATABASE_PATH', default='database')
     DATABASE_URL = config('DATABASE_URL', default='database.json')
+    GOOGLE_SHEET_URL = config('GOOGLE_SHEET_URL', default='')
 
 
 def is_date(string, fuzzy=False):
