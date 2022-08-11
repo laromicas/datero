@@ -3,7 +3,7 @@
 """
 import re
 import os
-from lib.dat import XMLDatFile
+from lib.dat import ClrMameProDatFile, XMLDatFile
 from lib import Settings
 
 
@@ -66,3 +66,36 @@ class NoIntroDat(XMLDatFile):
             result = re.findall(r'\(.*?\)', self.file)
             self.date = result[len(result)-1][1:-1]
         return self.date
+
+
+class NoIntroClrMameDat(ClrMameProDatFile):
+    """ NoIntro Dat class. """
+    repo: str = 'nointro'
+
+    def initial_parse(self) -> list:
+        """ Parse the dat file. """
+        # pylint: disable=R0801
+        name = self.name
+
+        suffixes = re.findall(r'\(.*?\)', self.full_name)
+        name = name.replace(' '.join(suffixes), '').strip()
+        name_array = name.split(' - ')
+
+        self.modifier = name_array.pop()
+
+        company, system = name_array
+
+        self.company = company
+        self.system = system
+        self.suffix = None
+
+        self.suffixes = suffixes
+
+        self.preffix = Settings.Preffixes.get(self.modifier or self.system_type, '')
+
+        return [self.preffix, self.company, self.system, self.suffix, self.get_date()]
+
+    def get_date(self) -> str:
+        """ Get the date from the dat file. """
+        self.date = self.version
+        return self.version

@@ -45,10 +45,12 @@ class RedumpDat(XMLDatFile):
         """ Get the date from the dat file. """
         if self.full_name:
             result = re.findall(r'\(.*?\)', self.full_name)
-            self.date = result[len(result)-1][1:-1]
+            if result:
+                self.date = result[len(result)-1][1:-1]
         elif self.file:
             result = re.findall(r'\(.*?\)', self.file)
-            self.date = result[len(result)-1][1:-1]
+            if result:
+                self.date = result[len(result)-1][1:-1]
         return self.date
 
 
@@ -69,6 +71,7 @@ class RedumpBiosDat(ClrMameProDatFile):
         self.modifier = name_array.pop()
 
         company, system = name_array
+
         self.company = company
         self.system = system
         self.suffix = None
@@ -83,8 +86,10 @@ class RedumpBiosDat(ClrMameProDatFile):
         """ Get the date from the dat file. """
         if self.full_name:
             result = re.findall(r'\(.*?\)', self.full_name)
-            self.date = result[1][1:-1]
+            if result:
+                self.date = result[1][1:-1]
         elif self.file:
             result = re.findall(r'\(.*?\)', self.file)
-            self.date = result[1][1:-1]
+            if result:
+                self.date = result[1][1:-1]
         return self.date

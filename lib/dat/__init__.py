@@ -163,31 +163,32 @@ class ClrMameProDatFile(DatFile):
                     break
                 line = line.strip()
                 if line.startswith('clrmamepro'):
-                    while not line.startswith(')'):
+                    # Temporal Work-around for some non-compliant files
+                    while not line.startswith(')') and not ')' in line:
                         line = fild.readline()
                         line = line.strip()
-                        if not line or line.startswith(')'):
+                        if not line or line.startswith(')') or ')' in line:
                             break
                         key, value = shlex.split(line)
                         header[key] = value
-                if line.startswith('game'):
-                    game = {'rom': []}
-                    while not line.startswith(')'):
-                        line = fild.readline()
-                        line = line.strip()
-                        if not line or line.startswith(')'):
-                            break
-                        if line.startswith('rom'):
-                            line = line[6:-2]
-                            rom = {'@name': None, '@crc': None, '@md5': None, '@sha1': None}
-                            data = shlex.split(line)
-                            for i in range(0, len(data), 2):
-                                rom[f'@{data[i]}'] = data[i+1]
-                            game['rom'].append(rom)
-                        else:
-                            key, value = shlex.split(line)
-                            game[key] = value
-                    games.append(game)
+                # if line.startswith('game'):
+                #     game = {'rom': []}
+                #     while not line.startswith(')'):
+                #         line = fild.readline()
+                #         line = line.strip()
+                #         if not line or line.startswith(')'):
+                #             break
+                #         if line.startswith('rom'):
+                #             line = line[6:-2]
+                #             rom = {'@name': None, '@crc': None, '@md5': None, '@sha1': None}
+                #             data = shlex.split(line)
+                #             for i in range(0, len(data), 2):
+                #                 rom[f'@{data[i]}'] = data[i+1]
+                #             game['rom'].append(rom)
+                #         else:
+                #             key, value = shlex.split(line)
+                #             game[key] = value
+                #     games.append(game)
         self.data = {
             'datafile': {
                 'header':  header,
