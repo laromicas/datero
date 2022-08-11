@@ -67,8 +67,10 @@ class RedumpBiosDat(ClrMameProDatFile):
         suffixes = re.findall(r'\(.*?\)', self.full_name)
         name = name.replace(' '.join(suffixes), '').strip()
         name_array = name.split(' - ')
-
-        self.modifier = name_array.pop()
+        if name_array[-1:][0] in ('BIOS Images'):
+            self.modifier = name_array.pop()
+        else:
+            self.modifier = 'Handheld'
 
         company, system = name_array
 

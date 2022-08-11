@@ -4,6 +4,7 @@ Dat classes to parse different types of dat files.
 # from abc import abstractmethod
 from mimetypes import suffix_map
 import os
+import re
 import shlex
 import xmltodict
 
@@ -152,43 +153,65 @@ class XMLDatFile(DatFile):
 class ClrMameProDatFile(DatFile):
     """ ClrMamePro dat file. """
 
+    def get_next_block(self, data):
+        """ Get the next block of data. """
+        parenthesis = 0
+        start = 0
+        end = 0
+        for i, char in enumerate(data):
+            if char == '(':
+                if parenthesis == 0:
+                    start = i + 1
+                parenthesis += 1
+            if char == ')':
+                parenthesis -= 1
+            if parenthesis == 0 and start >= 1:
+                end = i
+                break
+        return data[start:end], data[end + 1:] if end < len(data) else ''
+
+    def read_block(self, data) -> dict:
+        dictionary = {}
+        for line in iter(data.splitlines()):
+            line = line.strip()
+            if line:
+                if line.startswith('rom'):
+                    line = line[6:-2]
+                    rom = {'@name': None, '@crc': None, '@md5': None, '@sha1': None}
+                    try:
+                        data = shlex.split(line)
+                    except ValueError:
+                        data = line.split(' ')
+                    for i in range(0, len(data), 2):
+                        rom[f'@{data[i]}'] = data[i+1]
+                    dictionary['rom'] = [] if 'rom' not in dictionary else dictionary['rom']
+                    dictionary['rom'].append(rom)
+                else:
+                    try:
+                        key, value = shlex.split(line)
+                    except ValueError:
+                        print(line)
+                        exit()
+                    dictionary[key] = value
+
+        return dictionary
+
     def load(self) -> None:
         """ Load the data from a ClrMamePro file. """
         header = {}
         games = []
-        with open(self.file, encoding='utf-8') as fild:
-            while True:
-                line = fild.readline()
-                if not line:
-                    break
-                line = line.strip()
-                if line.startswith('clrmamepro'):
-                    # Temporal Work-around for some non-compliant files
-                    while not line.startswith(')') and not ')' in line:
-                        line = fild.readline()
-                        line = line.strip()
-                        if not line or line.startswith(')') or ')' in line:
-                            break
-                        key, value = shlex.split(line)
-                        header[key] = value
-                # if line.startswith('game'):
-                #     game = {'rom': []}
-                #     while not line.startswith(')'):
-                #         line = fild.readline()
-                #         line = line.strip()
-                #         if not line or line.startswith(')'):
-                #             break
-                #         if line.startswith('rom'):
-                #             line = line[6:-2]
-                #             rom = {'@name': None, '@crc': None, '@md5': None, '@sha1': None}
-                #             data = shlex.split(line)
-                #             for i in range(0, len(data), 2):
-                #                 rom[f'@{data[i]}'] = data[i+1]
-                #             game['rom'].append(rom)
-                #         else:
-                #             key, value = shlex.split(line)
-                #             game[key] = value
-                #     games.append(game)
+        index = 0
+        next_data = ''
+        with open(self.file, encoding='utf-8', errors='ignore') as file:
+            data = file.read()
+
+            block, next_block = self.get_next_block(data)
+            header = self.read_block(block)
+
+            while next_block:
+                block, next_block = self.get_next_block(next_block)
+                games.append(self.read_block(block))
+
         self.data = {
             'datafile': {
                 'header':  header,
