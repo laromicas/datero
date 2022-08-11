@@ -25,7 +25,7 @@ $ ./seed
 
 # Download dats to tmp folder
 $ lib/repos/<dattype>/update -f
-$ lib/repos/nointro/update -f   # be careful when updating dats from datomatic, sometimes they put a captcha, and you may be banned if the cpatcha fails, captcha support is OTW
+$ lib/repos/nointro/update -f
 
 # process dats and organize them
 lib/repos/<dattype>/update -p
@@ -33,6 +33,10 @@ lib/repos/<dattype>/update -p
 # process dats filtered by word
 lib/repos/<dattype>/update -p -d <filter>
 ```
+
+## Posible Issues
+
+Be careful when updating dats from datomatic, sometimes they put a captcha, and you may be banned if the captcha fails, captcha support is OTW
 
 ## Contributing
 
