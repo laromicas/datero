@@ -168,7 +168,7 @@ class ClrMameProDatFile(DatFile):
             if parenthesis == 0 and start >= 1:
                 end = i
                 break
-        return data[start:end], data[end + 1:] if end < len(data) else ''
+        return data[start:end], data[end + 1:] if end < len(data) else None
 
     def read_block(self, data) -> dict:
         dictionary = {}

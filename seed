@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 """
 Seeds the database with initial data needed.
-Created on Tue Jul  9 10:00:00 2019
 """
 from lib.database import DB
 from lib.database.seeds import dat_repos
@@ -11,22 +10,3 @@ from lib.database.seeds import dat_rules
 with DB as DB:
     dat_repos._import_()
     dat_rules._import_()
-
-
-# https://archive.org/details/3ds-cdn-supplement
-# https: //archive.org/details/3ds-cdn-supplement_2
-#
-# https://archive.org/details/ngc-rvz_mainregions1
-# https://archive.org/details/ngc-rvz_mainregions2
-# https://archive.org/details/ngc-rvz_demo
-
-#
-#
-#
-# nirsoft
-# joeware.net
-# https://mitec.cc/
-
-# with DB as DB:
-#     all = DB.table('dats').all()
-#     [print(f"\"{x['company']}\"", f"\"{x['system']}\"") for x in all]
