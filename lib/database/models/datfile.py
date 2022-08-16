@@ -70,6 +70,10 @@ class Dat(DatabaseModel):
         query = Query()
         return (query.name == self.name) & (query.repo == self.repo)
 
+    def is_enabled(self):
+        """ Check if the dat is enabled. """
+        return not getattr(self, 'status', None) or self.status == 'enabled'
+
 
 class Repo(DatabaseModel):
     """ Repo file model. """

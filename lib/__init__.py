@@ -10,6 +10,7 @@ from decouple import config
 @dataclass
 class Settings:
     """ Settings class """
+    Overwrite: bool = False
     UNION_CHARACTER = '-'
     Preffixes = {
         "Arcade": "Arcade",

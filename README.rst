@@ -50,9 +50,12 @@ Posible Issues
 Be careful when updating dats from datomatic, sometimes they put a captcha, and you may be banned if the captcha fails, captcha support is OTW.
 
 TODO (without priority)
-----
+-----------------------
 
--  Don't update when same filename
+-  Don't update when same filename *
+-  Option to disable individual dats *
+-  Option to disable dat seeds
+-  Refactor repos to dat seeds
 -  Tests
 -  More dat repositories
 -  Show updated
@@ -60,18 +63,28 @@ TODO (without priority)
 -  Better structure for the downloaders
 -  Main command line executable for easy executions
 -  Pip installer
--  Refactor repos to dat seeds
 -  Removing unneeded dependencies
--  Modular design for dat repositories (TBD)
--  Option to disable repositories
--  Option to disable individual dats
 -  Configurable folder structure (instead of emulator-focused structure use dat-repositories or viceversa)
--  Dat structure for ClrMamePro or another dat manager (TBD).
--  Web interface (TBD)
--  Download from central repositories (an S3 or something like that to prevent overload main sites) (TBD)
+
+*(\*) Done but to be improved*
+
+
+
+WISHLIST (without priority)
+---------------------------
+
+-  Modular design for dat seeds
+-  Dat structure for ClrMamePro or another dat manager.
+-  Web interface
+-  Download from central repositories (an S3 or something like that to prevent overload main sites)
    -  Lambda to download dats and upload to S3
    -  Downloading from S3
--  Auto-Import MIA Lists (TBD)
+-  Auto-Import MIA Lists
+   -  Add [MIA] to dat roms
+-  Deduplicate dats
+-  Remove MIA from dats
+
+
 
 Contributing
 ------------
@@ -84,27 +97,3 @@ License
 
 `MIT <https://choosealicense.com/licenses/mit/>`__
 
-
-
-
-=HYPERLINK(H11,H11)
-=HYPERLINK(H11,IMAGE(H11))
-=ENCODEURL(LOWER(B11))
-= https://scryfall.com/search?q=&G11&&unique=cards&as=grid&order=name
-="https://api.scryfall.com/cards/named?exact="&J11&"&format=image"
-
-
-function MTG_IMAGE(input) {
-  encoded = encodeURIComponent(input.toLowerCase());
-  url = "https://scryfall.com/search?q=" + encoded + "&unique=cards&as=grid&order=name"
-  img_url = "https://api.scryfall.com/cards/named?exact=" + encoded + "&format=image"
-  link = HYPERLINK(url, url)
-  img_link = HYPERLINK(img_url, IMAGE(img_url))
-  return img_link
-}
-
-var ss = SpreadsheetApp.getActiveSpreadsheet();
-var sheet = ss.getSheets()[0];
-
-var cell = sheet.getRange("B5");
-cell.setFormula("=SUM(B3:B4)");
