@@ -23,7 +23,7 @@ environment)
 
 .. code-block:: bash
 
-   pip install -r requirements.txt
+   $ pip install -r requirements.txt
 
 Usage
 -----
@@ -65,6 +65,7 @@ TODO (without priority)
 -  Pip installer
 -  Removing unneeded dependencies
 -  Configurable folder structure (instead of emulator-focused structure use dat-repositories or viceversa)
+-  database setup
 
 *(\*) Done but to be improved*
 
@@ -79,7 +80,7 @@ WISHLIST (without priority)
 -  Download from central repositories (an S3 or something like that to prevent overload main sites)
    -  Lambda to download dats and upload to S3
    -  Downloading from S3
--  Auto-Import MIA Lists
+-  Auto-Import MIA Lists (for redump)
    -  Add [MIA] to dat roms
 -  Deduplicate dats
 -  Remove MIA from dats
