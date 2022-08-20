@@ -5,13 +5,11 @@ import sys
 import argparse
 import pkg_resources
 
-from commands import Bcolors, SEEDS_FOLDER
+from commands import Bcolors, Command
 from commands.list import installed_seeds, seed_description
 from commands.doctor import check_seed, check_installed_packages, check_main_executables
-from commands.seed import *
-from commands.seed import seed_available
-from commands.seed import get_seed_repository
-from commands.seed import seed_install
+from commands.seed_manager import seed_available, get_seed_repository, seed_install, seed_remove
+from commands.seed import Seed
 
 #---------Boilerplate to check python version ----------
 if sys.version_info[0] < 3:
@@ -56,6 +54,9 @@ def parse_args():
     for seed in installed_seeds():
         parser_command = subparser.add_parser(seed[0], help=f'Update seed {seed[0]}')
         parser_command.set_defaults(func=command_seed, seed=seed[0])
+        parser_command.add_argument('-f', '--fetch', action='store_true', help='Fetch seed')
+        parser_command.add_argument('-p', '--process', action='store_true', help='Process dats from seed')
+        parser_command.add_argument('-fd', '--filter', help='Filter dats to process')
         commands.append(parser_command)
 
     """ Common arguments """
@@ -65,16 +66,26 @@ def parse_args():
             subpar.add_argument('-v', '--verbose', action='store_true', help='verbose output')
             subpar.add_argument('-q', '--quiet', action='store_true', help='quiet output')
             subpar.add_argument('-nc', '--no-color', action='store_true', help='disable color output')
+            subpar.add_argument('-l', '--logging', action='store_true', help='enable logging')
 
     args = parser.parse_args()
     if getattr(args, 'no_color', False):
         Bcolors.no_color()
+    if getattr(args, 'quiet', False):
+        Command.quiet()
+    if getattr(args, 'verbose', False):
+        Command.verbose()
+    if getattr(args, 'logging', False):
+        Command.logging()
     return args
 
 def command_seed_remove(args):
     """Remove seed"""
-    print(args)
-    print(args.seed)
+    if not check_seed(args.seed):
+        print(f'Module Seed {Bcolors.FAIL}  - {Bcolors.BOLD}{args.seed}{Bcolors.ENDC} not found')
+        exit(1)
+    seed_remove(args.seed)
+    print(f'Seed {Bcolors.OKGREEN}{args.seed}{Bcolors.ENDC} removed successfully')
 
 def command_seed_install(args):
     """Install seed"""
@@ -89,6 +100,7 @@ def command_seed_install(args):
         print(f'Please provide it with --repository parameter.')
         exit(1)
     seed_install(args, repository)
+    print(f'Seed {Bcolors.OKGREEN}{args.seed}{Bcolors.ENDC} installed successfully')
 
 def command_seed_available(args):
     """List available seeds"""
@@ -103,8 +115,19 @@ def command_seed_available(args):
 
 def command_seed(args):
     """Commands with the seed (must be installed)"""
-    print(args)
-    print(args.seed)
+    seed = Seed(name=args.seed)
+    if getattr(args, 'fetch', False):
+        print(f'Fetching seed {Bcolors.OKGREEN}{args.seed}{Bcolors.ENDC}')
+        if seed.fetch():
+            print(f'Errors fetching {Bcolors.FAIL}{args.seed}{Bcolors.ENDC}')
+            print(f'Please enable logs for more information or use -v parameter')
+            command_doctor(args)
+    if getattr(args, 'process', False):
+        print(f'Processing seed {Bcolors.OKGREEN}{args.seed}{Bcolors.ENDC}')
+        if seed.process(filter=getattr(args, 'filter', None)):
+            print(f'Errors processing {Bcolors.FAIL}{args.seed}{Bcolors.ENDC}')
+            print(f'Please enable logs for more information or use -v parameter')
+            command_doctor(args)
 
 def command_list(args): # pylint: disable=unused-argument
     """List installed seeds"""

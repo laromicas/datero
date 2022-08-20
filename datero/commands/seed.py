@@ -1,42 +1,43 @@
 import os
-import sys
-from . import Bcolors, ROOT_FOLDER, SEEDS_FOLDER
+import json
+from . import Command, SEEDS_FOLDER, config
 from .doctor import check_seed
 
+class Seed:
+    name = None
+    path = None
+    actions = {}
 
-def read_seed_repositories():
-    with open(os.path.join(ROOT_FOLDER, 'seeds.txt'), 'r') as seeds:
-        for seed in seeds:
-            seed = seed.strip().split(' ')
-            yield (seed[0], seed[1], ' '.join(seed[2:]) if len(seed) > 2 else '')
+    def __init__(self, **kwargs) -> None:
+        self.__dict__.update(kwargs)
+        self.path = os.path.join(SEEDS_FOLDER, self.name)
+        if os.path.exists(os.path.join(self.path,'actions.json')):
+            with open(os.path.join(self.path,'actions.json'), 'r') as file:
+                self.actions = json.load(file)
 
-def get_seed_repository(seed_needed):
-    with open(os.path.join(ROOT_FOLDER, 'seeds.txt'), 'r') as seeds:
-        for seed in seeds:
-            seed = seed.strip().split(' ')
-            if seed[0] == seed_needed:
-                return seed[1]
-    return None
-
-
-def seed_available():
-    for seed in read_seed_repositories():
-        yield seed[0], seed[2]
-
-
-def seed_install(args, repository):
-    repository = repository if repository.startswith('http') else 'https://' + repository
-    repository = repository[:-4] if repository.endswith('.git') else repository
-    branch = args.branch if getattr(args, 'branch', None) else 'master'
-    url = os.path.join(repository, 'archive', f'{branch}.zip')
-    path = os.path.join(SEEDS_FOLDER, args.seed)
-    os.system(f'rm -rf {path}')
-    os.makedirs(path, exist_ok=True)
-    os.system(f'cd {path} && wget -O {branch}.zip {url}')
-    os.system(f'cd {path} && unzip {branch}.zip && rm {branch}.zip')
+    def fetch(self):
+        working_path = config.get('PATHS', 'WorkingPath')
+        working_path = os.path.abspath(os.path.join(os.getcwd(), working_path))
+        paths = {
+            'SEED_NAME': self.name,
+            'WORK_FOLDER': working_path,
+            'TMP_FOLDER': config.get('PATHS', 'TempPath'),
+            'ROMVAULT_FOLDER': config.get('PATHS', 'RomVaultPath'),
+            'DAT_FOLDER': config.get('PATHS', 'DatPath'),
+        }
+        paths.update(os.environ)
+        result = Command.execute(os.path.join(self.path, 'fetch'), cwd=self.path, env=paths)
+        return result
 
 
-def uninstall(seed):
-    if not check_seed(seed):
-        print(f'Module Seed {Bcolors.FAIL}  - {Bcolors.BOLD}{seed}{Bcolors.ENDC} not found')
-        exit(1)
+    def process_dats(self, filter=None):
+        # path = f'tmp/redump/dats/{folder}'
+        dat_path = os.path.join(config.get('PATHS', 'TempPath'), self.name, 'dats')
+        print(self.actions)
+        # for file in os.listdir(path):
+        #     if file.endswith('.dat') and (not args.dat or args.dat in file):
+        #         print('Processing', file)
+        #         procesor = Processor(repo='redump', file=f'{path}/{file}', actions=actions['actions'])
+        #         procesor.process()
+        # os.system(f'cd {Settings.DAT_ROOT} && find . -type d -empty -print -delete')
+        pass

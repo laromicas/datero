@@ -1,12 +1,14 @@
 import os
-
-# from packaging import version
 import sys
-from subprocess import DEVNULL, STDOUT, check_call
+from subprocess import PIPE, DEVNULL, STDOUT, CalledProcessError, run
+import configparser
 
 ROOT_FOLDER = os.path.dirname(sys.argv[0])
 SEEDS_FOLDER = os.path.join(os.path.dirname(sys.argv[0]), 'seeds')
 
+config = configparser.ConfigParser()
+config.read(os.path.join(ROOT_FOLDER, 'datero.ini'))
+config.read(os.path.join(os.getcwd(), '.daterorc'))
 
 class Bcolors:
     HEADER = '\033[95m'
@@ -26,16 +28,53 @@ class Bcolors:
         for color in Bcolors.color_list():
             setattr(Bcolors, color, '')
 
-def quiet_mode(command):
-    command = command.split(' ')
-    check_call(command, stdout=DEVNULL, stderr=STDOUT)
 
-class ExecuteCommand:
-    stdout = DEVNULL
-    stderr = STDOUT
+class Command:
+    """ Subprocess wrapper """
+    quiet = config.getboolean('COMMAND','Quiet', fallback=False)
+    verbose = config.getboolean('COMMAND','Verbose', fallback=False)
+    logging = config.getboolean('LOG','Logging', fallback=False)
+    logfile = config.get('LOG','LogFile', fallback='datero.log')
 
     def __init__(self, command):
         self.command = command
 
-    def execute(command):
-        check_call(command, stdout=ExecuteCommand.stdout, stderr=ExecuteCommand.stderr)
+    def quiet(quiet=True):
+        Command.quiet = quiet
+        Command.verbose = not quiet
+
+    def verbose(verbose=True):
+        Command.verbose = verbose
+        Command.quiet = not verbose
+
+    def logging():
+        # TODO: add logging
+        pass
+
+    def execute(command, stdin=None, input=None, stdout=PIPE, stderr=STDOUT, capture_output=False, shell=False, cwd=None, timeout=None, check=False, errors=None, env=None, text=None):
+        # print(shell)
+        # check_call(command, stdout=ExecuteCommand.stdout, stderr=ExecuteCommand.stderr)
+        #  subprocess.run(args, *, stdin=None, input=None, stdout=None, stderr=None, capture_output=False, shell=False, cwd=None, timeout=None, check=False, encoding=None, errors=None, text=None, env=None, universal_newlines=None, **other_popen_kwargs)
+        # try:
+        result = run(command, stdin=stdin, input=input, stdout=stdout, stderr=stderr, capture_output=capture_output, shell=shell, cwd=cwd, timeout=timeout, check=check, errors=errors, env=env, text=text)
+        output = result.stdout.decode('unicode_escape')
+        # except CalledProcessError as e:
+        #     if not Command.quiet:
+        #         print(output)
+
+        #     return e.returncode
+
+        if not Command.quiet:
+            print(output)
+        if Command.logging:
+            pass
+        return result.returncode
+        # run(command, shell=shell)
+
+        #  subprocess.check_call(args, *, stdin=None, stdout=None, stderr=None, shell=False, cwd=None, timeout=None, **other_popen_kwargs)
+        #  Run command with arguments. Wait for command to complete. If the return code was zero then return, otherwise raise CalledProcessError.
+        #
+        #
+        #  subprocess.check_output(args, *, stdin=None, stderr=None, shell=False, cwd=None, encoding=None, errors=None, universal_newlines=None, timeout=None, text=None, **other_popen_kwargs)
+        #  Run command with arguments and return its output
+        #  run(..., check=True, stdout=PIPE).stdout
