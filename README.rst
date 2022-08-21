@@ -86,7 +86,6 @@ TODO (without priority)
 -  More dat repositories
 -  Show updated
 -  Mega.nz download support (https://pypi.org/project/mega.py/)
--  Pip installer
 -  Move helpers out from commands
 -  Configurable folder structure (instead of emulator-focused structure use dat-repositories or viceversa)
 
@@ -98,6 +97,7 @@ TODO (without priority)
 -  Don't update when same filename *
 -  Option to disable individual dats *
 -  Better structure for the downloaders *
+-  Pip installer (**)
 -  Refactor repos to dat seeds (**)
 -  Main command line executable for easy executions (**)
 -  Removing unneeded dependencies (**)
