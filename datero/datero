@@ -124,7 +124,7 @@ def command_seed(args):
             command_doctor(args)
     if getattr(args, 'process', False):
         print(f'Processing seed {Bcolors.OKGREEN}{args.seed}{Bcolors.ENDC}')
-        if seed.process(filter=getattr(args, 'filter', None)):
+        if seed.process_dats(filter=getattr(args, 'filter', None)):
             print(f'Errors processing {Bcolors.FAIL}{args.seed}{Bcolors.ENDC}')
             print(f'Please enable logs for more information or use -v parameter')
             command_doctor(args)

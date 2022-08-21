@@ -4,15 +4,15 @@ Process actions.
 # pylint: disable=too-few-public-methods
 import os
 from pydoc import locate
-from lib import Settings
-from lib.database.models.datfile import Dat
+from commands import config
+from database.models.datfile import Dat
 
 
 class Processor:
     """ Process actions. """
     _previous = None
     actions = []
-    repo = None
+    seed = None
     file = None
 
     def __init__(self, **kwargs):
@@ -22,7 +22,7 @@ class Processor:
     def process(self):
         """ Process actions. """
         for action in self.actions:
-            action_class = globals()[action['action']](file=self.file, repo=self.repo, previous=self._previous, **action)
+            action_class = globals()[action['action']](file=self.file, seed=self.seed, previous=self._previous, **action)
             action_class.process()
             self._previous = action_class.output
 
@@ -38,7 +38,7 @@ class LoadDatFile(Process):
     """ Load a dat file. """
     class_name = None
     file = None
-    repo = None
+    seed = None
     database = None
     _class = None
     _dat = None
@@ -48,7 +48,7 @@ class LoadDatFile(Process):
         self._class = locate(self.class_name)
         self._dat = self._class(file=self.file)
         self._dat.load()
-        self.database = Dat(repo=self.repo, **self._dat.dict())
+        self.database = Dat(seed=self.seed, **self._dat.dict())
         self.output = self.database.dict()
 
 
@@ -57,7 +57,7 @@ class DeleteOld(Process):
     database = None
     def process(self):
         """ Delete old dat file. """
-        self.database = Dat(repo=self.previous['repo'], name=self.previous['name'])
+        self.database = Dat(seed=self.previous['seed'], name=self.previous['name'])
         self.database.load()
         olddat = self.database.dict()
         if 'new_file' in olddat and os.path.exists(olddat['new_file']):
@@ -80,15 +80,15 @@ class Copy(Process):
         filename = os.path.basename(origin)
         self.destination = self.destination if self.destination else self.previous['path']
 
-        destination = os.path.join(Settings.ROMVAULT_PATH, self.folder, self.destination, filename)
+        destination = os.path.join(config.get('PATHS','RomVaultPath'), self.folder, self.destination, filename)
         os.makedirs(os.path.dirname(destination), exist_ok=True)
         if self.previous:
-            self.database = Dat(repo=self.previous['repo'], name=self.previous['name'])
+            self.database = Dat(seed=self.previous['seed'], name=self.previous['name'])
             self.database.load()
             if self.database.is_enabled():
-                old_file = os.path.basename(self.database.dict()['new_file'])
+                old_file = os.path.basename(self.database.dict().get('new_file', ''))
                 new_file = os.path.basename(destination)
-                if old_file != new_file or Settings.Overwrite or not os.path.exists(destination):
+                if old_file != new_file or config.get('GENERAL', 'Overwrite') or not os.path.exists(destination):
                     self.previous['new_file'] = destination
                     os.system(f'cp "{origin}" "{destination}"')
             else:

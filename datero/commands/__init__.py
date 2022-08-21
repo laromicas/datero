@@ -2,6 +2,8 @@ import os
 import sys
 from subprocess import PIPE, DEVNULL, STDOUT, CalledProcessError, run
 import configparser
+from dateutil import parser
+
 
 ROOT_FOLDER = os.path.dirname(sys.argv[0])
 SEEDS_FOLDER = os.path.join(os.path.dirname(sys.argv[0]), 'seeds')
@@ -27,6 +29,29 @@ class Bcolors:
     def no_color():
         for color in Bcolors.color_list():
             setattr(Bcolors, color, '')
+
+def is_date(string, fuzzy=False):
+    """
+    Return whether the string can be interpreted as a date.
+
+    :param string: str, string to check for date
+    :param fuzzy: bool, ignore unknown tokens in string if True
+    """
+    try:
+        parser.parse(string, fuzzy=fuzzy)
+        return True
+
+    except ValueError:
+        return False
+
+
+def sizeof_fmt(num, suffix="B"):
+    """ Convert bytes to human readable format. """
+    for unit in ["", "Ki", "Mi", "Gi", "Ti", "Pi", "Ei", "Zi"]:
+        if abs(num) < 1024.0:
+            return f"{num:3.1f}{unit}{suffix}"
+        num /= 1024.0
+    return f"{num: .1f}Yi{suffix}"
 
 
 class Command:

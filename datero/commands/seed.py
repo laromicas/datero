@@ -2,11 +2,14 @@ import os
 import json
 from . import Command, SEEDS_FOLDER, config
 from .doctor import check_seed
+from actions.processor import Processor
+
 
 class Seed:
     name = None
     path = None
     actions = {}
+    working_path = os.path.abspath(os.path.join(os.getcwd(), config.get('PATHS', 'WorkingPath')))
 
     def __init__(self, **kwargs) -> None:
         self.__dict__.update(kwargs)
@@ -16,11 +19,9 @@ class Seed:
                 self.actions = json.load(file)
 
     def fetch(self):
-        working_path = config.get('PATHS', 'WorkingPath')
-        working_path = os.path.abspath(os.path.join(os.getcwd(), working_path))
         paths = {
             'SEED_NAME': self.name,
-            'WORK_FOLDER': working_path,
+            'WORK_FOLDER': self.working_path,
             'TMP_FOLDER': config.get('PATHS', 'TempPath'),
             'ROMVAULT_FOLDER': config.get('PATHS', 'RomVaultPath'),
             'DAT_FOLDER': config.get('PATHS', 'DatPath'),
@@ -32,12 +33,13 @@ class Seed:
 
     def process_dats(self, filter=None):
         # path = f'tmp/redump/dats/{folder}'
-        dat_path = os.path.join(config.get('PATHS', 'TempPath'), self.name, 'dats')
-        print(self.actions)
-        # for file in os.listdir(path):
-        #     if file.endswith('.dat') and (not args.dat or args.dat in file):
-        #         print('Processing', file)
-        #         procesor = Processor(repo='redump', file=f'{path}/{file}', actions=actions['actions'])
-        #         procesor.process()
+        dat_path = os.path.join(self.working_path, config.get('PATHS', 'TempPath'), self.name, 'dats')
+        for path, actions in self.actions.items():
+            new_path = path.format(dat_path=dat_path)
+            for file in os.listdir(new_path):
+                if file.endswith('.dat') and (not filter or filter in file):
+                    print('Processing', file)
+                    procesor = Processor(seed=self.name, file=f'{new_path}/{file}', actions=actions)
+                    procesor.process()
         # os.system(f'cd {Settings.DAT_ROOT} && find . -type d -empty -print -delete')
         pass
