@@ -20,9 +20,8 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": [
-                "-p",
-                "-d",
-                "Xbox"
+                "nointro",
+                "--fetch"
             ]
         },
         {
@@ -36,6 +35,21 @@
                 "-p",
                 "-d",
                 "Archimedes"
+            ]
+        },
+        {
+            "name": "Python: Shell Install",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "seed",
+                "install",
+                "redump",
+                "--branch",
+                "first-commit"
             ]
         }
     ]

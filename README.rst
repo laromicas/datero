@@ -23,67 +23,92 @@ environment)
 
 .. code-block:: bash
 
-   pip install -r requirements.txt
+   $ pip install -r requirements.txt
 
 Usage
 -----
 
 .. code-block:: bash
 
-   # fill the json database with initial data
-   $ ./seed
+   # Show help
+   $ datero --help
 
-   # Download dats to tmp folder
-   $ lib/repos/<dattype>/update -f
-   # e.g.
-   $ lib/repos/nointro/update -f
+   # List installed seeds
+   $ datero list
 
-   # process dats and organize them
-   lib/repos/<dattype>/update -p
+   # Doctor the seeds installation
+   $ datero doctor [seed]
 
-   # process dats filtered by word
-   lib/repos/<dattype>/update -p -d <filter>
+   # List available seeds
+   $ datero seed available
+
+   # Seed install
+   $ datero seed install [seed] [--repository REPOSITORY] [--branch BRANCH]
+
+   # Seed remove
+   $ datero seed remove [seed]
+
+   # Seed commands
+   $ datero [seed] {--fetch|--process} [--filter FILTER]
+
+   optional arguments:
+      -h, --help            show the help message and exit, feel free to append to other commands
+      -v, --verbose         verbose output
+      -q, --quiet           quiet output
 
 Posible Issues
 --------------
 
 Be careful when updating dats from datomatic, sometimes they put a captcha, and you may be banned if the captcha fails, captcha support is OTW.
 
+
 TODO (without priority)
 -----------------------
 
--  Don't update when same filename *
--  Option to disable individual dats *
+-  Logging
+-  Command to populate DB with initial data
 -  Option to disable dat seeds
--  Refactor repos to dat seeds
 -  Tests
 -  More dat repositories
 -  Show updated
 -  Mega.nz download support (https://pypi.org/project/mega.py/)
--  Better structure for the downloaders
--  Main command line executable for easy executions
 -  Pip installer
--  Removing unneeded dependencies
+-  Move helpers out from commands
 -  Configurable folder structure (instead of emulator-focused structure use dat-repositories or viceversa)
 
+   -  Maybe with a builder, to avoid the need to change the code
+
+-  database setup
+-  Commenting datero.ini
+-  Modular design for repositories (done for seeds, repositores missing)
+-  Don't update when same filename *
+-  Option to disable individual dats *
+-  Better structure for the downloaders *
+-  Refactor repos to dat seeds (**)
+-  Main command line executable for easy executions (**)
+-  Removing unneeded dependencies (**)
+
 *(\*) Done but to be improved*
+
+*(\*\*) Did it Yay!!!*
 
 
 
 WISHLIST (without priority)
 ---------------------------
 
--  Modular design for dat seeds
+-  Modular design for dat seeds (**)
 -  Dat structure for ClrMamePro or another dat manager.
 -  Web interface
 -  Download from central repositories (an S3 or something like that to prevent overload main sites)
    -  Lambda to download dats and upload to S3
    -  Downloading from S3
--  Auto-Import MIA Lists
+-  Auto-Import MIA Lists (for redump)
    -  Add [MIA] to dat roms
 -  Deduplicate dats
 -  Remove MIA from dats
 
+*(\*\*) Did it Yay!!!*
 
 
 Contributing

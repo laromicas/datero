@@ -8,7 +8,7 @@ import re
 import shlex
 import xmltodict
 
-from lib.database.models.datfile import System
+from database.models.datfile import System
 
 
 class DatFile:
