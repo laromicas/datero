@@ -3,7 +3,7 @@ from . import SEEDS_FOLDER, Bcolors
 
 def installed_seeds():
     for seed in os.listdir(SEEDS_FOLDER):
-        if not os.path.isdir(os.path.join(SEEDS_FOLDER, seed)):
+        if not os.path.isdir(os.path.join(SEEDS_FOLDER, seed)) or seed.startswith('__'):
             continue
         name = seed
         description = seed_description(seed)

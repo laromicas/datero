@@ -1,7 +1,7 @@
 import os
 import json
 from . import Command, SEEDS_FOLDER, config, ROOT_FOLDER
-from actions.processor import Processor
+from datero.actions.processor import Processor
 
 
 class Seed:

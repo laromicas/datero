@@ -1,0 +1,3 @@
+include README.rst
+include src/datero/datero.ini
+include src/datero/seeds.txt

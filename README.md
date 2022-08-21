@@ -70,8 +70,7 @@ OTW.
 -   Mega.nz download support (<https://pypi.org/project/mega.py/>)
 -   Pip installer
 -   Move helpers out from commands
--   Configurable folder structure (instead of emulator-focused structure
-    use dat-repositories or viceversa)
+-   Configurable folder structure (instead of emulator-focused structure use dat-repositories or viceversa)
     -   Maybe with a builder, to avoid the need to change the code
 -   database setup
 -   Commenting datero.ini
