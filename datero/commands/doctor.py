@@ -7,9 +7,7 @@ ignore_packages = ['pyOpenSSL', 'PySocks']
 
 
 def check_seed(seed):
-    if not os.path.isdir(os.path.join(SEEDS_FOLDER, seed)):
-        return False
-    return seed
+    return os.path.isdir(os.path.join(SEEDS_FOLDER, seed))
 
 def check_version(detected, required, expression):
     detected = pkg_resources.parse_version(detected)
@@ -59,16 +57,13 @@ def check_main_executables(seed):
     min_files = {
         '__init__.py': 'Namespace initialization file',
         'fetch': 'Fetch script',
-        'Process': 'Process script'
+        'actions.json': 'json with actions to execute to process the data',
         }
     for file, desc in min_files.items():
         if not os.path.isfile(os.path.join(SEEDS_FOLDER, seed, file)):
             print(f'{Bcolors.FAIL}  - {Bcolors.BOLD}{file}{Bcolors.ENDC} not found ({desc})')
 
-def check_seed(seed):
-    if not os.path.isdir(os.path.join(SEEDS_FOLDER, seed)):
-        return False
-
+def check_dependencies(seed):
     installed_pkgs = {pkg.key: pkg.version for pkg in pkg_resources.working_set}
     print(f'* {Bcolors.OKCYAN}{seed}{Bcolors.ENDC}')
     check_installed_packages(seed, installed_pkgs)

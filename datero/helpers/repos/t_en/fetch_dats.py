@@ -7,7 +7,7 @@ import sys
 if not os.getcwd() in sys.path:
     sys.path.append(os.getcwd())
 
-from helpers.repositories.ia import InternetArchive
+from repositories.ia import InternetArchive
 
 
 TMP = 'tmp'

@@ -1,7 +1,5 @@
 import os
-import sys
-from . import Bcolors, ROOT_FOLDER, SEEDS_FOLDER, Command
-from .doctor import check_seed
+from . import ROOT_FOLDER, SEEDS_FOLDER, Command
 
 
 def read_seed_repositories():

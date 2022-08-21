@@ -8,6 +8,7 @@ from dateutil import parser
 ROOT_FOLDER = os.path.dirname(sys.argv[0])
 SEEDS_FOLDER = os.path.join(os.path.dirname(sys.argv[0]), 'seeds')
 
+
 config = configparser.ConfigParser()
 config.read(os.path.join(ROOT_FOLDER, 'datero.ini'))
 config.read(os.path.join(os.getcwd(), '.daterorc'))

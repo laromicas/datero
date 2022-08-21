@@ -1,7 +1,6 @@
 import os
 import json
-from . import Command, SEEDS_FOLDER, config
-from .doctor import check_seed
+from . import Command, SEEDS_FOLDER, config, ROOT_FOLDER
 from actions.processor import Processor
 
 
@@ -25,6 +24,7 @@ class Seed:
             'TMP_FOLDER': config.get('PATHS', 'TempPath'),
             'ROMVAULT_FOLDER': config.get('PATHS', 'RomVaultPath'),
             'DAT_FOLDER': config.get('PATHS', 'DatPath'),
+            'DATERO_HOME': ROOT_FOLDER,
         }
         paths.update(os.environ)
         result = Command.execute(os.path.join(self.path, 'fetch'), cwd=self.path, env=paths)

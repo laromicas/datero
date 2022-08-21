@@ -60,21 +60,23 @@ TODO (without priority)
 -  More dat repositories
 -  Show updated
 -  Mega.nz download support (https://pypi.org/project/mega.py/)
--  Better structure for the downloaders
--  Main command line executable for easy executions
+-  Better structure for the downloaders *
+-  Main command line executable for easy executions (**)
 -  Pip installer
 -  Removing unneeded dependencies
 -  Configurable folder structure (instead of emulator-focused structure use dat-repositories or viceversa)
+   -  Maybe with a builder, to avoid the need to change the code
 -  database setup
 
 *(\*) Done but to be improved*
+*(\*\*) Did it Yay!!!*
 
 
 
 WISHLIST (without priority)
 ---------------------------
 
--  Modular design for dat seeds
+-  Modular design for dat seeds (**)
 -  Dat structure for ClrMamePro or another dat manager.
 -  Web interface
 -  Download from central repositories (an S3 or something like that to prevent overload main sites)
@@ -84,7 +86,7 @@ WISHLIST (without priority)
    -  Add [MIA] to dat roms
 -  Deduplicate dats
 -  Remove MIA from dats
-
+*(\*\*) Did it Yay!!!*
 
 
 Contributing

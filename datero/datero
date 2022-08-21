@@ -7,7 +7,7 @@ import pkg_resources
 
 from commands import Bcolors, Command
 from commands.list import installed_seeds, seed_description
-from commands.doctor import check_seed, check_installed_packages, check_main_executables
+from commands.doctor import check_dependencies, check_seed, check_installed_packages, check_main_executables
 from commands.seed_manager import seed_available, get_seed_repository, seed_install, seed_remove
 from commands.seed import Seed
 
@@ -36,8 +36,8 @@ def parse_args():
     parser_seed = subparser.add_parser('seed', help='Seed scripts')
     subparser_seed = parser_seed.add_subparsers(help='sub-command help')
 
-    parser_remove = subparser_seed.add_parser('available', help='Remove seed')
-    parser_remove.set_defaults(func=command_seed_available)
+    parser_available = subparser_seed.add_parser('available', help='List available seeds')
+    parser_available.set_defaults(func=command_seed_available)
 
     parser_install = subparser_seed.add_parser('install', help='Install seed')
     parser_install.add_argument('seed', help='Seed to install')
@@ -91,7 +91,7 @@ def command_seed_install(args):
     """Install seed"""
     if check_seed(args.seed):
         print(f'Module Seed {Bcolors.WARNING}{args.seed}{Bcolors.ENDC} already installed')
-        print(f'Continue? [y/n]: ', end='')
+        print(f'Reinstall? [y/n]: ', end='')
         if input().lower() != 'y':
             sys.exit(1)
     repository = get_seed_repository(args.seed) or (args.repository if getattr(args, 'repository', None) else None)
@@ -142,7 +142,7 @@ def command_doctor(args):
         if not seed:
             print(f'Module Seed {Bcolors.FAIL}  - {Bcolors.BOLD}{args.seed}{Bcolors.ENDC} not found')
             exit(1)
-        seeds = [(seed, seed_description(seed))]
+        seeds = [(args.seed, seed_description(args.seed))]
     else:
         seeds = installed_seeds()
     installed_pkgs = {pkg.key: pkg.version for pkg in pkg_resources.working_set}

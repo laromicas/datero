@@ -47,7 +47,9 @@
             "args": [
                 "seed",
                 "install",
-                "t_en"
+                "redump",
+                "--branch",
+                "first-commit"
             ]
         }
     ]
