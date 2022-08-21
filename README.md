@@ -8,19 +8,18 @@
 ```
 # Datero
 
-Datero is a WIP Python command line tool to download and organize your
-Dat Roms. As today the tool supports dat-omatic, redump, and
-translated-english dats. It merges all the dats in a tree folder
-structure thought to use with Emulators rather than dats. The dat
-structure is compatible with [ROMVault](https://www.romvault.com/).
+Datero is a WIP Python command line tool to download and organize your Dat Roms.
+As today the tool supports dat-omatic, redump, and translated-english dats.
+It merges all the dats in a tree folder structure thought to use with Emulators rather than dats.
+The dat file format must be compatible with [ROMVault](https://www.romvault.com/).
 
 ## Installation
 
-Download the code and install requirements (recommended to use a virtual
-environment)
+Use pip or download a release and install it (recommended to use a virtual environment):
 
 ``` bash
-$ pip install -r requirements.txt
+pip install datero
+pip install datero-0.3.0-py3-none-any.whl
 ```
 
 ## Usage
