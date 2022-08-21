@@ -56,6 +56,18 @@ Usage
       -v, --verbose         verbose output
       -q, --quiet           quiet output
 
+How to Build
+-----
+
+.. code-block:: bash
+
+   # Install build
+   $ pip install build
+
+   # Build
+   $ python -m build
+
+
 Posible Issues
 --------------
 
