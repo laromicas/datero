@@ -32,7 +32,6 @@ class Seed:
 
 
     def process_dats(self, filter=None):
-        # path = f'tmp/redump/dats/{folder}'
         dat_path = os.path.join(self.working_path, config.get('PATHS', 'TempPath'), self.name, 'dats')
         for path, actions in self.actions.items():
             new_path = path.format(dat_path=dat_path)
@@ -41,5 +40,3 @@ class Seed:
                     print('Processing', file)
                     procesor = Processor(seed=self.name, file=f'{new_path}/{file}', actions=actions)
                     procesor.process()
-        # os.system(f'cd {Settings.DAT_ROOT} && find . -type d -empty -print -delete')
-        pass
