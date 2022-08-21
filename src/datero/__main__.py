@@ -1,9 +1,10 @@
+import json
 import os
 import sys
 import argparse
 import pkg_resources
 
-from datero.commands import Bcolors, Command
+from datero.commands import Bcolors, Command, config
 from datero.commands.list import installed_seeds, seed_description
 from datero.commands.doctor import check_dependencies, check_seed, check_installed_packages, check_main_executables
 from datero.commands.seed_manager import seed_available, get_seed_repository, seed_install, seed_remove
@@ -21,9 +22,9 @@ def parse_args():
 
     parser.add_argument('-v', '--version', action='store_true', help='show version')
 
-    if len(sys.argv) == 1:
-        parser.print_help(sys.stderr)
-        sys.exit(1)
+    parser_save = subparser.add_parser('config', help='Show configuration')
+    parser_save.add_argument('-s', '--save', action='store_true', help='Save configuration to .daterorc')
+    parser_save.set_defaults(func=command_config)
 
     parser_list = subparser.add_parser('list', help='List installed seeds')
     parser_list.set_defaults(func=command_list)
@@ -68,14 +69,17 @@ def parse_args():
             subpar.add_argument('-nc', '--no-color', action='store_true', help='disable color output')
             subpar.add_argument('-l', '--logging', action='store_true', help='enable logging')
 
+    if len(sys.argv) == 1:
+        parser.print_help(sys.stderr)
+        sys.exit(1)
+
     args = parser.parse_args()
     if getattr(args, 'version', False):
         from . import __version__
         print(__version__)
         sys.exit()
-        # print(pkg_resources.require("datero")[0].version)
-        # exit(0)
-    if getattr(args, 'no_color', False):
+
+if getattr(args, 'no_color', False):
         Bcolors.no_color()
     if getattr(args, 'quiet', False):
         Command.quiet()
@@ -134,6 +138,17 @@ def command_seed(args):
             print(f'Errors processing {Bcolors.FAIL}{args.seed}{Bcolors.ENDC}')
             print(f'Please enable logs for more information or use -v parameter')
             command_doctor(args)
+
+def command_config(args):
+    """Config commands"""
+    config_dict = {s:dict(config.items(s)) for s in config.sections()}
+    if args.save:
+        with open('.daterorc', 'w') as f:
+            config.write(f)
+        print(f'Config saved to {Bcolors.OKGREEN}.daterorc{Bcolors.ENDC}')
+    else:
+        print(json.dumps(config_dict, indent=4))
+
 
 def command_list(args): # pylint: disable=unused-argument
     """List installed seeds"""

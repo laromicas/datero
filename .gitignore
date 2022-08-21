@@ -1,6 +1,6 @@
 # Project
 tmp/
-datero/seeds/
+src/datero/seeds/
 database/
 
 # Byte-compiled / optimized / DLL files

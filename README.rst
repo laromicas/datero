@@ -56,6 +56,18 @@ Usage
       -v, --verbose         verbose output
       -q, --quiet           quiet output
 
+How to Build
+-----
+
+.. code-block:: bash
+
+   # Install build
+   $ pip install build
+
+   # Build
+   $ python -m build
+
+
 Posible Issues
 --------------
 
@@ -65,6 +77,8 @@ Be careful when updating dats from datomatic, sometimes they put a captcha, and 
 TODO (without priority)
 -----------------------
 
+-  Database initialization !!! (priority)
+-  Global configuration file manager (priority)
 -  Logging
 -  Command to populate DB with initial data
 -  Option to disable dat seeds
