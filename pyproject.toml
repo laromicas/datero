@@ -1,0 +1,52 @@
+[build-system]
+requires      = ["setuptools~=62.6", "wheel~=0.37.1"]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name        = "datero"
+license     = {text = "MIT License"}
+description = "Python command line tool to download and organize your Rom Dat files."
+readme      = "README.rst"
+authors     = [
+    {name = 'Lacides Miranda', email = 'laromicas@hotmail.com'}
+]
+keywords = ["emulators", "roms"]
+classifiers = [
+    'Development Status :: 3 - Alpha',
+    "Environment :: Console",
+    'License :: OSI Approved :: MIT License',
+    "Operating System :: POSIX :: Linux",
+    'Programming Language :: Python :: 3',
+    'Topic :: System :: Emulators',
+]
+requires-python = ">=3.7"
+dependencies = [
+    "tinydb>=4.7.0",
+    "pydantic>=1.9.2",
+    "python-dateutil>=2.8.0",
+    "xmltodict>=0.13.0",
+    "internetarchive>=3.0.0",
+]
+dynamic = ["version"]
+
+
+[project.optional-dependencies]
+selenium = ["selenium==4.3.0"]
+
+[project.urls]
+"Source Code"       = "https://github.com/laromicas/datero"
+
+[project.scripts]
+datero = "datero.__main__:main"
+
+[tool.setuptools]
+packages = ["datero"]
+license-files = ["LICENSE"]
+include-package-data = true
+
+[tool.setuptools.dynamic]
+version = {attr = "datero.__version__"}
+
+# TODO Maybe change license to "BSD 3-Clause License"
+

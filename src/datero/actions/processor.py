@@ -4,8 +4,8 @@ Process actions.
 # pylint: disable=too-few-public-methods
 import os
 from pydoc import locate
-from commands import config
-from database.models.datfile import Dat
+from datero.commands import config
+from datero.database.models.datfile import Dat
 
 
 class Processor:

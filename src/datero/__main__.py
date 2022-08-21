@@ -1,15 +1,13 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
+import os
 import sys
 import argparse
 import pkg_resources
 
-from commands import Bcolors, Command
-from commands.list import installed_seeds, seed_description
-from commands.doctor import check_dependencies, check_seed, check_installed_packages, check_main_executables
-from commands.seed_manager import seed_available, get_seed_repository, seed_install, seed_remove
-from commands.seed import Seed
+from datero.commands import Bcolors, Command
+from datero.commands.list import installed_seeds, seed_description
+from datero.commands.doctor import check_dependencies, check_seed, check_installed_packages, check_main_executables
+from datero.commands.seed_manager import seed_available, get_seed_repository, seed_install, seed_remove
+from datero.commands.seed import Seed
 
 #---------Boilerplate to check python version ----------
 if sys.version_info[0] < 3:
@@ -20,6 +18,8 @@ if sys.version_info[0] < 3:
 def parse_args():
     parser = argparse.ArgumentParser(description='Update dats from different sources.')
     subparser = parser.add_subparsers(help='sub-command help')
+
+    parser.add_argument('-v', '--version', action='store_true', help='show version')
 
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
@@ -69,6 +69,12 @@ def parse_args():
             subpar.add_argument('-l', '--logging', action='store_true', help='enable logging')
 
     args = parser.parse_args()
+    if getattr(args, 'version', False):
+        from . import __version__
+        print(__version__)
+        sys.exit()
+        # print(pkg_resources.require("datero")[0].version)
+        # exit(0)
     if getattr(args, 'no_color', False):
         Bcolors.no_color()
     if getattr(args, 'quiet', False):
@@ -152,6 +158,11 @@ def command_doctor(args):
         check_main_executables(seed[0])
 
 
-if __name__ == '__main__':
+def main():
+    """Main function"""
     args = parse_args()
     args.func(args)
+
+
+if __name__ == '__main__':
+    main()

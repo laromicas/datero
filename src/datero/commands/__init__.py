@@ -3,11 +3,9 @@ import sys
 from subprocess import PIPE, DEVNULL, STDOUT, CalledProcessError, run
 import configparser
 from dateutil import parser
+from .. import ROOT_FOLDER
 
-
-ROOT_FOLDER = os.path.dirname(sys.argv[0])
-SEEDS_FOLDER = os.path.join(os.path.dirname(sys.argv[0]), 'seeds')
-
+SEEDS_FOLDER = os.path.join(ROOT_FOLDER, 'seeds')
 
 config = configparser.ConfigParser()
 config.read(os.path.join(ROOT_FOLDER, 'datero.ini'))
