@@ -79,8 +79,8 @@ def parse_args():
         print(__version__)
         sys.exit()
 
-if getattr(args, 'no_color', False):
-        Bcolors.no_color()
+    if getattr(args, 'no_color', False):
+            Bcolors.no_color()
     if getattr(args, 'quiet', False):
         Command.quiet()
     if getattr(args, 'verbose', False):
