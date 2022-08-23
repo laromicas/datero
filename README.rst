@@ -82,6 +82,7 @@ TODO (without priority)
     -  Command to populate DB with initial data
 
 -  Make update rules write to database only when finished
+-  Better rules update process
 -  Global configuration file manager (priority)
 -  Logging
 -  Option to disable dat seeds
@@ -99,6 +100,7 @@ TODO (without priority)
 -  Don't update when same filename *
 -  Option to disable individual dats *
 -  Better structure for the downloaders *
+-  Better command line support
 
 *(\*) Done but to be improved*
 

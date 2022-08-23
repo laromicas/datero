@@ -86,8 +86,6 @@ class Copy(Process):
             self.database = Dat(seed=self.previous['seed'], name=self.previous['name'])
             self.database.load()
             if self.database.is_enabled():
-                # old_file = os.path.basename(self.database.dict().get('new_file', ''))
-                # new_file = os.path.basename(destination)
                 old_file = self.database.dict().get('new_file', '')
                 new_file = destination
                 if old_file != new_file or config['GENERAL']['Overwrite'] or not os.path.exists(destination):
