@@ -60,7 +60,7 @@ class DeleteOld(Process):
         self.database = Dat(seed=self.previous['seed'], name=self.previous['name'])
         self.database.load()
         olddat = self.database.dict()
-        if 'new_file' in olddat and os.path.exists(olddat['new_file']):
+        if 'new_file' in olddat and olddat['new_file'] and os.path.exists(olddat['new_file']):
             os.unlink(olddat['new_file'])
 
         self.output = self.previous
@@ -86,9 +86,9 @@ class Copy(Process):
             self.database = Dat(seed=self.previous['seed'], name=self.previous['name'])
             self.database.load()
             if self.database.is_enabled():
-                old_file = os.path.basename(self.database.dict().get('new_file', ''))
-                new_file = os.path.basename(destination)
-                if old_file != new_file or config.get('GENERAL', 'Overwrite') or not os.path.exists(destination):
+                old_file = self.database.dict().get('new_file', '')
+                new_file = destination
+                if old_file != new_file or config['GENERAL']['Overwrite'] or not os.path.exists(destination):
                     self.previous['new_file'] = destination
                     os.system(f'cp "{origin}" "{destination}"')
             else:

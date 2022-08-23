@@ -5,52 +5,25 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: Module",
+            "type": "python",
+            "request": "launch",
+            "module": "datero",
+            "justMyCode": true,
+            "args": [
+                "nointro",
+                "--process",
+                "-fd",
+                "Archimedes",
+            ],
+        },
+        {
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
             "justMyCode": true
-        },
-        {
-            "name": "Python: Update No-Intro",
-            "type": "python",
-            "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal",
-            "justMyCode": true,
-            "args": [
-                "nointro",
-                "--fetch"
-            ]
-        },
-        {
-            "name": "Python: Update Redump",
-            "type": "python",
-            "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal",
-            "justMyCode": true,
-            "args": [
-                "-p",
-                "-d",
-                "Archimedes"
-            ]
-        },
-        {
-            "name": "Python: Shell Install",
-            "type": "python",
-            "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal",
-            "justMyCode": true,
-            "args": [
-                "seed",
-                "install",
-                "redump",
-                "--branch",
-                "first-commit"
-            ]
         }
     ]
 }

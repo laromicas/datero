@@ -78,9 +78,13 @@ TODO (without priority)
 -----------------------
 
 -  Database initialization !!! (priority)
+
+    -  Command to populate DB with initial data
+
+-  Make update rules write to database only when finished
+-  Better rules update process
 -  Global configuration file manager (priority)
 -  Logging
--  Command to populate DB with initial data
 -  Option to disable dat seeds
 -  Tests
 -  More dat repositories
@@ -91,16 +95,12 @@ TODO (without priority)
 
    -  Maybe with a builder, to avoid the need to change the code
 
--  database setup
 -  Commenting datero.ini
 -  Modular design for repositories (done for seeds, repositores missing)
 -  Don't update when same filename *
 -  Option to disable individual dats *
 -  Better structure for the downloaders *
--  Pip installer (**)
--  Refactor repos to dat seeds (**)
--  Main command line executable for easy executions (**)
--  Removing unneeded dependencies (**)
+-  Better command line support
 
 *(\*) Done but to be improved*
 
