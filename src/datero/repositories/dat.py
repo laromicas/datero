@@ -8,7 +8,7 @@ import re
 import shlex
 import xmltodict
 
-from database.models.datfile import System
+from datero.database.models.datfile import System
 
 
 class DatFile:
@@ -16,7 +16,7 @@ class DatFile:
     name: str = None
     file: str = None
     full_name: str = None
-    repo: str = None
+    seed: str = None
 
     # calculated values
     modifier: str = None
@@ -141,9 +141,9 @@ class XMLDatFile(DatFile):
         if extra_configs:
             if 'empty_suffix' in extra_configs:
                 if not self.suffix:
-                    self.suffix = extra_configs['empty_suffix'].get(self.repo, None)
+                    self.suffix = extra_configs['empty_suffix'].get(self.seed, None)
             if 'additional_suffix' in extra_configs:
-                self.suffix = os.path.join(self.suffix, extra_configs['additional_suffix'].get(self.repo, None))
+                self.suffix = os.path.join(self.suffix, extra_configs['additional_suffix'].get(self.seed, None))
             if 'if_suffix' in extra_configs:
                 for key, value in extra_configs['if_suffix'].items():
                     if key in self.suffixes:

@@ -78,6 +78,7 @@ TODO (without priority)
 -----------------------
 
 -  Database initialization !!! (priority)
+-  Make update rules write to database only when finished
 -  Global configuration file manager (priority)
 -  Logging
 -  Command to populate DB with initial data

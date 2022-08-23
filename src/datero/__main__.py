@@ -1,8 +1,10 @@
 import json
 import os
+import re
 import sys
 import argparse
 import pkg_resources
+from tabulate import tabulate
 
 from datero.commands import Bcolors, Command, config
 from datero.commands.list import installed_seeds, seed_description
@@ -25,13 +27,27 @@ def parse_args():
     parser_save = subparser.add_parser('config', help='Show configuration')
     parser_save.add_argument('-s', '--save', action='store_true', help='Save configuration to .daterorc')
     parser_save.set_defaults(func=command_config)
+    parser_save.add_argument('-ru', '--rules-update', action='store_true', help='Update system rules from GoogleSheets Url')
 
     parser_list = subparser.add_parser('list', help='List installed seeds')
     parser_list.set_defaults(func=command_list)
 
     parser_doctor = subparser.add_parser('doctor', help='Doctor installed seeds')
-    parser_doctor.add_argument('seed', nargs='?', help='Seed to doctor')
+    parser_doctor.add_argument('command', nargs='?', help='Seed to doctor')
     parser_doctor.set_defaults(func=command_doctor)
+
+    parser_dat = subparser.add_parser('dat', help='Make changes in dat config')
+    parser_dat.add_argument('command', nargs='?', help='Command to execute')
+    group_dat= parser_dat.add_mutually_exclusive_group(required=True)
+
+    group_dat.add_argument('-d', '--dat-name', help='Select dat to update/check, must be in format "seed:name"')
+    group_dat.add_argument('-s', '--search', help='Select dats based on filter, they are "<field><operator><value>;...", valid operators are: =, !=, and ~=')
+    parser_dat.add_argument('-ss', '--set-status', help='Select all dats', choices=['enabled', 'disabled'])
+    parser_dat.add_argument('-on', '--only-names', action='store_true', help='Only show names')
+
+    # parser_dat.add_argument('-t', '--table', default='dats', help='Select table', choices=['dats', 'systems'])
+
+    parser_dat.set_defaults(func=command_dat)
 
     """ Seed admin commands """
     parser_seed = subparser.add_parser('seed', help='Seed scripts')
@@ -52,7 +68,7 @@ def parse_args():
 
     """ Seed commands """
     commands = []
-    for seed in installed_seeds():
+    for seed in list(installed_seeds()) + [('all', 'All seeds')]:
         parser_command = subparser.add_parser(seed[0], help=f'Update seed {seed[0]}')
         parser_command.set_defaults(func=command_seed, seed=seed[0])
         parser_command.add_argument('-f', '--fetch', action='store_true', help='Fetch seed')
@@ -79,7 +95,7 @@ def parse_args():
         print(__version__)
         sys.exit()
 
-    if getattr(args, 'no_color', False):
+    if getattr(args, 'no_color', False) or os.name == 'nt':
             Bcolors.no_color()
     if getattr(args, 'quiet', False):
         Command.quiet()
@@ -88,6 +104,56 @@ def parse_args():
     if getattr(args, 'logging', False):
         Command.logging()
     return args
+
+def command_dat(args):
+    """Make changes in dat config"""
+    from datero.database import DB
+    from tinydb import Query
+    query = Query()
+    table = DB.table('dats')
+    output = []
+    if args.dat_name:
+        splitted = args.dat_name.split(':')
+        if len(splitted) != 2:
+            print(f'{Bcolors.WARNING}Invalid dat name, must be in format "seed:name"{Bcolors.ENDC}')
+            print(f'Showing results for filter: {Bcolors.OKCYAN}name~={args.dat_name}{Bcolors.ENDC}')
+            print('--------------------------------------------------------------')
+            name = args.dat_name
+            result = table.search(query.name.matches(r'^.*' + name + r'.*', flags=re.IGNORECASE))
+            if getattr(args, 'only_names', False):
+                for dat in result:
+                    print(f"{dat['seed']}:{dat['name']}")
+                sys.exit()
+            for dat in result:
+                output.append({
+                    'seed': dat['seed'],
+                    'name': dat['name'],
+                    'status': dat['status'] if 'status' in dat else 'enabled',
+                })
+            print(tabulate(output, headers='keys', tablefmt='psql'))
+            sys.exit(0)
+        else:
+            seed, name = splitted
+            result = table.get((query.name == name) & (query.seed == seed))
+            if not result:
+                print(f'{Bcolors.FAIL}Dat not found{Bcolors.ENDC}')
+                sys.exit(1)
+            # print(result.doc_id)
+            if args.set_status:
+                table.update({'status': args.set_status}, doc_ids=[result.doc_id])
+                table.storage.flush()
+                print(f'{Bcolors.OKGREEN}Dat {Bcolors.OKCYAN}{seed}:{name}{Bcolors.OKGREEN} status set to {Bcolors.OKBLUE}{args.set_status}{Bcolors.ENDC}')
+                sys.exit(0)
+            if result:
+                output.append({
+                    'seed': result['seed'],
+                    'name': result['name'],
+                    'status': result['status'] if 'status' in result else 'enabled',
+                })
+            print(tabulate(output, headers='keys', tablefmt='psql'))
+            sys.exit(0)
+
+
 
 def command_seed_remove(args):
     """Remove seed"""
@@ -125,6 +191,11 @@ def command_seed_available(args):
 
 def command_seed(args):
     """Commands with the seed (must be installed)"""
+    if args.seed == 'all':
+        for seed in seed_available():
+            args.seed = seed[0]
+            command_seed(args)
+        sys.exit(0)
     seed = Seed(name=args.seed)
     if getattr(args, 'fetch', False):
         print(f'Fetching seed {Bcolors.OKGREEN}{args.seed}{Bcolors.ENDC}')
@@ -133,7 +204,9 @@ def command_seed(args):
             print(f'Please enable logs for more information or use -v parameter')
             command_doctor(args)
     if getattr(args, 'process', False):
-        print(f'Processing seed {Bcolors.OKGREEN}{args.seed}{Bcolors.ENDC}')
+        print(f'=======================')
+        print(f'{Bcolors.OKCYAN}Processing seed {Bcolors.OKGREEN}{args.seed}{Bcolors.ENDC}')
+        print(f'=======================')
         if seed.process_dats(filter=getattr(args, 'filter', None)):
             print(f'Errors processing {Bcolors.FAIL}{args.seed}{Bcolors.ENDC}')
             print(f'Please enable logs for more information or use -v parameter')
@@ -146,6 +219,17 @@ def command_config(args):
         with open('.daterorc', 'w') as f:
             config.write(f)
         print(f'Config saved to {Bcolors.OKGREEN}.daterorc{Bcolors.ENDC}')
+    elif args.rules_update:
+        from datero.database.seeds import dat_rules
+        print(f'Updating rules')
+        try:
+            dat_rules._import_()
+            print(f'Rules updated')
+        except Exception as e:
+            print(f'{Bcolors.FAIL}Error updating rules{Bcolors.ENDC}')
+            print(e)
+            print(f'Please enable logs for more information or use -v parameter')
+            command_doctor(args)
     else:
         print(json.dumps(config_dict, indent=4))
 

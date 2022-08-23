@@ -7,8 +7,8 @@ from .. import ROOT_FOLDER
 
 SEEDS_FOLDER = os.path.join(ROOT_FOLDER, 'seeds')
 
-config = configparser.RawConfigParser()
-config.optionxform = str
+config = configparser.ConfigParser()
+config.optionxform = lambda option: option
 config.read(os.path.join(ROOT_FOLDER, 'datero.ini'))
 config.read(os.path.join(os.getcwd(), '.daterorc'))
 
