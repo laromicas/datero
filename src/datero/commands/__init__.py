@@ -5,12 +5,9 @@ import configparser
 from dateutil import parser
 from .. import ROOT_FOLDER
 
-SEEDS_FOLDER = os.path.join(ROOT_FOLDER, 'seeds')
+from datero.configuration import config
 
-config = configparser.ConfigParser()
-config.optionxform = lambda option: option
-config.read(os.path.join(ROOT_FOLDER, 'datero.ini'))
-config.read(os.path.join(os.getcwd(), '.daterorc'))
+SEEDS_FOLDER = os.path.join(ROOT_FOLDER, 'seeds')
 
 class Bcolors:
     HEADER = '\033[95m'

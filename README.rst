@@ -121,6 +121,7 @@ WISHLIST (without priority)
    -  Add [MIA] to dat roms
 -  Deduplicate dats
 -  Remove MIA from dats
+-  .cue Generator
 
 *(\*\*) Did it Yay!!!*
 
