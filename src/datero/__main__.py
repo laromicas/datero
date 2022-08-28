@@ -1,3 +1,5 @@
+from ast import arg
+import configparser
 import json
 import os
 import re
@@ -28,6 +30,11 @@ def parse_args():
     parser_save.add_argument('-s', '--save', action='store_true', help='Save configuration to .daterorc')
     parser_save.set_defaults(func=command_config)
     parser_save.add_argument('-ru', '--rules-update', action='store_true', help='Update system rules from GoogleSheets Url')
+
+    group_save = parser_save.add_mutually_exclusive_group()
+    group_save.add_argument('--set', nargs=2, metavar=('configuration', 'value'), help='Set Configuration Option separated by point with new value e.g. <GENERAL.Overwrite> <false>')
+    group_save.add_argument('--get', metavar=('configuration'), help='Get value of Configuration Option.')
+    parser_save.add_argument('-g','--global', action='store_true', help='When set, saves to global config, else to `.daterorc`')
 
     parser_list = subparser.add_parser('list', help='List installed seeds')
     parser_list.set_defaults(func=command_list)
@@ -214,11 +221,39 @@ def command_seed(args):
 
 def command_config(args):
     """Config commands"""
-    config_dict = {s:dict(config.items(s)) for s in config.sections()}
     if args.save:
-        with open('.daterorc', 'w') as f:
-            config.write(f)
+        with open('.daterorc', 'w') as file:
+            config.write(file)
         print(f'Config saved to {Bcolors.OKGREEN}.daterorc{Bcolors.ENDC}')
+    elif args.set:
+        myconfig = args.set[0].split('.')
+        if len(myconfig) != 2:
+            print(f'{Bcolors.FAIL}Invalid config key, must be in <SECTION>.<Option> format. {Bcolors.ENDC}')
+            sys.exit(1)
+        if myconfig[1] not in config[myconfig[0]]:
+            print(f'{Bcolors.FAIL}Invalid config option. {Bcolors.ENDC}')
+            sys.exit(1)
+
+        from . import ROOT_FOLDER
+
+        newconfig = configparser.ConfigParser(allow_no_value=True)
+        newconfig.optionxform = lambda option: option
+        if getattr(args, 'global', False):
+            file = os.path.join(ROOT_FOLDER, 'datero.ini')
+        else:
+            file = os.path.join(os.getcwd(), '.daterorc')
+        newconfig.read(file)
+        if not newconfig.has_section(myconfig[0]):
+            newconfig.add_section(myconfig[0])
+        newconfig[myconfig[0]][myconfig[1]] = args.set[1]
+        with open(file, 'w') as file:
+            newconfig.write(file)
+        if getattr(args, 'global', False):
+            print(f'{Bcolors.OKGREEN}Global config {Bcolors.OKCYAN}{myconfig[0]}.{myconfig[1]}{Bcolors.OKGREEN} set to {Bcolors.OKBLUE}{args.set[1]}{Bcolors.ENDC}')
+        else:
+            print(f'{Bcolors.OKGREEN}Local Config {Bcolors.OKCYAN}{myconfig[0]}.{myconfig[1]}{Bcolors.OKGREEN} set to {Bcolors.OKBLUE}{args.set[1]}{Bcolors.ENDC}')
+    elif args.get:
+        print(args)
     elif args.rules_update:
         from datero.database.seeds import dat_rules
         print(f'Updating rules')
@@ -231,6 +266,7 @@ def command_config(args):
             print(f'Please enable logs for more information or use -v parameter')
             command_doctor(args)
     else:
+        config_dict = {s:dict(config.items(s)) for s in config.sections()}
         print(json.dumps(config_dict, indent=4))
 
 
