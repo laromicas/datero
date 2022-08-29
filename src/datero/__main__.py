@@ -236,7 +236,7 @@ def command_config(args):
 
         from . import ROOT_FOLDER
 
-        newconfig = configparser.ConfigParser(allow_no_value=True)
+        newconfig = configparser.ConfigParser(comment_prefixes='/', allow_no_value=True)
         newconfig.optionxform = lambda option: option
         if getattr(args, 'global', False):
             file = os.path.join(ROOT_FOLDER, 'datero.ini')
@@ -253,7 +253,15 @@ def command_config(args):
         else:
             print(f'{Bcolors.OKGREEN}Local Config {Bcolors.OKCYAN}{myconfig[0]}.{myconfig[1]}{Bcolors.OKGREEN} set to {Bcolors.OKBLUE}{args.set[1]}{Bcolors.ENDC}')
     elif args.get:
-        print(args)
+        myconfig = args.get.split('.')
+        if len(myconfig) != 2:
+            print(myconfig)
+            print(f'{Bcolors.FAIL}Invalid config key, must be in <SECTION>.<Option> format. {Bcolors.ENDC}')
+            sys.exit(1)
+        if myconfig[1] not in config[myconfig[0]]:
+            print(f'{Bcolors.FAIL}Invalid config option. {Bcolors.ENDC}')
+            sys.exit(1)
+        print(config[myconfig[0]][myconfig[1]])
     elif args.rules_update:
         from datero.database.seeds import dat_rules
         print(f'Updating rules')

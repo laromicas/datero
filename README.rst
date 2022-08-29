@@ -83,7 +83,6 @@ TODO (without priority)
 
 -  Make update rules write to database only when finished
 -  Better rules update process
--  Global configuration file manager (priority)
 -  Logging
 -  Option to disable dat seeds
 -  Tests
