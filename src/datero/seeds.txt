@@ -1,3 +1,4 @@
 nointro https://github.com/laromicas/datero_nointro.git No-Intro is a collection of DATs aimed for video game preservation especialized in cartridge-based and digital systems.
 redump https://github.com/laromicas/datero_redump.git Redump.org is a disc preservation database and internet community dedicated to collecting precise and accurate information about every video game ever released on optical media of any system.
 t_en https://github.com/laromicas/datero_t_en.git Translated-English is a collection of DATs aimed for video game translations.
+vpinmame https://github.com/laromicas/datero_vpinmame.git VPinMAME is a dat aimed for VisualPinMame.

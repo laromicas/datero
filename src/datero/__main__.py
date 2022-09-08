@@ -145,7 +145,6 @@ def command_dat(args):
             if not result:
                 print(f'{Bcolors.FAIL}Dat not found{Bcolors.ENDC}')
                 sys.exit(1)
-            # print(result.doc_id)
             if args.set_status:
                 table.update({'status': args.set_status}, doc_ids=[result.doc_id])
                 table.storage.flush()

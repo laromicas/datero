@@ -1,9 +1,11 @@
 """
     Seed the database with Systems.
 """
+import os
 import json
 import requests
 from datero.commands import config
+from datero.commands import ROOT_FOLDER
 from datero.database.models import System
 
 
@@ -43,6 +45,8 @@ def get_systems():
 def _import_():
     """ Seed the database with Systems. """
     systems = get_systems()
+    with open(os.path.join(ROOT_FOLDER,'systems.json'), 'w') as file:
+        json.dump(systems, file, indent=4)
     for system in systems:
         row = System(**system)
         row.save()

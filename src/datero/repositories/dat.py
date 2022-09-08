@@ -149,6 +149,9 @@ class XMLDatFile(DatFile):
                     if key in self.suffixes:
                         self.__dict__.update(value)
 
+    def get_date(self):
+        """ Get the date from the dat file. """
+        return self.date
 
 class ClrMameProDatFile(DatFile):
     """ ClrMamePro dat file. """
