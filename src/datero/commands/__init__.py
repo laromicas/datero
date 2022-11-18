@@ -61,11 +61,11 @@ class Command:
     def __init__(self, command):
         self.command = command
 
-    def quiet(quiet=True):
+    def set_quiet(quiet=True):
         Command.quiet = quiet
         Command.verbose = not quiet
 
-    def verbose(verbose=True):
+    def set_verbose(verbose=True):
         Command.verbose = verbose
         Command.quiet = not verbose
 

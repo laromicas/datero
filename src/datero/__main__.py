@@ -105,9 +105,9 @@ def parse_args():
     if getattr(args, 'no_color', False) or os.name == 'nt':
             Bcolors.no_color()
     if getattr(args, 'quiet', False):
-        Command.quiet()
+        Command.set_quiet()
     if getattr(args, 'verbose', False):
-        Command.verbose()
+        Command.set_verbose()
     if getattr(args, 'logging', False):
         Command.logging()
     return args

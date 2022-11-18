@@ -41,7 +41,7 @@ class InternetArchive:
 
 if __name__ == "__main__":
     ia = InternetArchive("En-ROMs")
-    for i in ia.list_files_from_dir("DATs"):
+    for i in ia.files_from_folder("DATs"):
         print(i['name'])
 
     print(ia.folders())

@@ -89,6 +89,8 @@ TODO (without priority)
 -  More dat repositories
 -  Show updated
 -  Mega.nz download support (https://pypi.org/project/mega.py/)
+-  Zippyshare download support (https://pypi.org/project/zippyshare-downloader/)
+-  Zippyshare download support (https://pypi.org/project/pyOneFichierClient/)
 -  Move helpers out from commands
 -  Configurable folder structure (instead of emulator-focused structure use dat-repositories or viceversa)
 

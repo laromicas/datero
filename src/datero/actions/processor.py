@@ -23,13 +23,14 @@ class Processor:
         """ Process actions. """
         for action in self.actions:
             action_class = globals()[action['action']](file=self.file, seed=self.seed, previous=self._previous, **action)
-            action_class.process()
+            yield action_class.process()
             self._previous = action_class.output
 
 
 class Process:
     """ Process Base class. """
     output = None
+    status = None
     previous = {}
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
@@ -50,6 +51,7 @@ class LoadDatFile(Process):
         self._dat.load()
         self.database = Dat(seed=self.seed, **self._dat.dict())
         self.output = self.database.dict()
+        return "Loaded"
 
 
 class DeleteOld(Process):
@@ -64,6 +66,7 @@ class DeleteOld(Process):
             os.unlink(olddat['new_file'])
 
         self.output = self.previous
+        return "Deleted"
 
 
 class Copy(Process):
@@ -82,6 +85,7 @@ class Copy(Process):
 
         destination = os.path.join(config.get('PATHS','RomVaultPath'), self.folder, self.destination, filename)
         os.makedirs(os.path.dirname(destination), exist_ok=True)
+        result = None
         if self.previous:
             self.database = Dat(seed=self.previous['seed'], name=self.previous['name'])
             self.database.load()
@@ -89,14 +93,23 @@ class Copy(Process):
                 old_file = self.database.dict().get('new_file', '')
                 new_file = destination
                 if old_file != new_file or config['GENERAL']['Overwrite'] or not os.path.exists(destination):
+                    if not os.path.exists(destination):
+                        result = "Added"
+                    elif old_file != new_file:
+                        result = "Updated"
+                    else:
+                        result = "Overwritten"
                     self.previous['new_file'] = destination
                     os.system(f'cp "{origin}" "{destination}"')
             else:
                 self.previous['new_file'] = None
+                result = "Ignored"
         else:
             os.system(f'cp "{origin}" "{destination}"')
+            result = "Copied"
 
         self.output = self.previous
+        return result or "Copied"
 
 
 class SaveToDatabase(Process):
@@ -107,6 +120,7 @@ class SaveToDatabase(Process):
         self.database = Dat(**self.previous)
         self.database.save()
         self.database.close()
+        return "Saved"
 
 
 if __name__ == '__main__':

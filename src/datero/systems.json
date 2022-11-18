@@ -1642,9 +1642,34 @@
         "system_type": "Video"
     },
     {
+        "company": "Acorn RISC OS",
+        "system": "Flash Media",
+        "override": {
+            "company": "Acorn",
+            "system": "Risc PC",
+            "suffix": "Flash Media"
+        },
+        "system_type": "Computer"
+    },
+    {
         "company": null,
         "system": "VPinMAME",
         "system_type": "Pinball"
+    },
+    {
+        "company": null,
+        "system": "Video Game Scans",
+        "system_type": "Manuals"
+    },
+    {
+        "company": null,
+        "system": "Video Game Digital OSTs",
+        "system_type": "Audio"
+    },
+    {
+        "company": null,
+        "system": "Video Game Manual Scans",
+        "system_type": "Manuals"
     },
     {
         "company": null,
