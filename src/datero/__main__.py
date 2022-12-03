@@ -198,7 +198,7 @@ def command_seed_available(args):
 def command_seed(args):
     """Commands with the seed (must be installed)"""
     if args.seed == 'all':
-        for seed in seed_available():
+        for seed in installed_seeds():
             args.seed = seed[0]
             command_seed(args)
         sys.exit(0)

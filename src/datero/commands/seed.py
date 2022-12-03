@@ -43,24 +43,17 @@ class Seed:
             new_path = path.format(dat_path=dat_path)
             for file in os.listdir(new_path):
                 if file.endswith('.dat') and (not filter or filter in file):
-                    # print(Command.quiet)
-                    # print(Command.verbose)
-                    # exit()
                     if not Command.quiet:
                         self.delete_line(line)
                         line = f'Processing {Bcolors.OKCYAN}{file}{Bcolors.ENDC}'
                         print(line, end=' ', flush=True)
-                        # sys.stdout.flush()
-                        # time.sleep(1)
                     procesor = Processor(seed=self.name, file=f'{new_path}/{file}', actions=actions)
-                    # if verbose or output in ['Updated']:
-                    output = [x for x in procesor.process() if (x in ['Updated'] or Command.verbose)]
+                    output = [x for x in procesor.process() if (x in self.status_to_show or Command.verbose)]
                     if not Command.quiet:
                         # [print('\b \b', end='') for x in range(0, len(line))]
                         self.delete_line(line)
                         line = f'Processed {Bcolors.OKCYAN}{file}{Bcolors.ENDC}'
                         print(line, end=' ', flush=True)
-                        # sys.stdout.flush()
 
                     if output and not Command.quiet:
                         line += str(output)+' '
