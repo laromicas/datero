@@ -7,6 +7,10 @@ from pydantic import BaseModel, Extra
 from tinydb import Query
 from datero.database import DB
 
+class Database:
+    """ TinyDB wrapper (). """
+    DB = DB
+    table = None
 
 class DatabaseModel(BaseModel):
     """ Base model for TinyDB. """
@@ -15,18 +19,18 @@ class DatabaseModel(BaseModel):
         extra = Extra.allow
         arbitrary_types_allowed = True
 
-    _DB = DB
+    _DB = Database()
     _id: int = None
     _table_name: str = None
 
     def __init__(self, **kwargs) -> None:
-        self._DB = DB  # pylint: disable=invalid-name
-        self._table = DB.table(self._table_name)
+        self._DB.DB = DB  # pylint: disable=invalid-name
+        self._DB.table = DB.table(self._table_name)
         super().__init__(**kwargs)
 
     def load(self):
         """ Load record from the database. """
-        result = self._table.search(self.query())
+        result = self._DB.table.search(self.query())
         if result:
             self.__dict__.update(result[0])
 
@@ -35,9 +39,9 @@ class DatabaseModel(BaseModel):
         """ Save record to the database. """
         query = Query()
         if self._id:
-            self._table.upsert(self.dict(), query.id == self._id)
+            self._DB.table.upsert(self.dict(), query.id == self._id)
         else:
-            self._id = self._table.upsert(self.dict(), self.query())
+            self._id = self._DB.table.upsert(self.dict(), self.query())
 
     def query(self):
         """ Query to update or load a record. """
@@ -46,7 +50,7 @@ class DatabaseModel(BaseModel):
 
     def close(self):
         """ Close the database. """
-        self._table.storage.flush()
+        self._DB.table.storage.flush()
 
 
 

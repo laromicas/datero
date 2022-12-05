@@ -50,4 +50,4 @@ def _import_():
     for system in systems:
         row = System(**system)
         row.save()
-        row._table.storage.flush()
+        row._DB.table.storage.flush()
