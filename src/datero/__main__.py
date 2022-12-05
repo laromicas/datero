@@ -285,7 +285,7 @@ def command_list(args): # pylint: disable=unused-argument
 
 def command_doctor(args):
     """Doctor installed seeds"""
-    if args.seed:
+    if getattr(args, 'seed', False):
         seed = check_seed(args.seed)
         if not seed:
             print(f'Module Seed {Bcolors.FAIL}  - {Bcolors.BOLD}{args.seed}{Bcolors.ENDC} not found')
