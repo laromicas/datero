@@ -7,6 +7,7 @@ import sys
 import argparse
 import pkg_resources
 from tabulate import tabulate
+import time
 
 from datero.commands import Bcolors, Command, config
 from datero.commands.list import installed_seeds, seed_description
@@ -68,10 +69,16 @@ def parse_args():
     parser_install.set_defaults(func=command_seed_install)
     parser_install.add_argument('-r', '--repository', help='Use repository instead of default')
     parser_install.add_argument('-b', '--branch', help='Use branch name instead of master')
+    parser_install.add_argument('-id', '--install-dependencies', help='Install all required dependencies', action='store_true')
 
     parser_remove = subparser_seed.add_parser('remove', help='Remove seed')
     parser_remove.add_argument('seed', help='Seed to remove')
     parser_remove.set_defaults(func=command_seed_remove)
+
+    parser_import = subparser.add_parser('import', help='Import dats from existing romvault')
+    # parser_import.add_argument('path', help='DatRoot path')
+    parser_import.set_defaults(func=command_dat_import)
+
 
     """ Seed commands """
     commands = []
@@ -158,6 +165,11 @@ def command_dat(args):
                 })
             print(tabulate(output, headers='keys', tablefmt='psql'))
             sys.exit(0)
+
+def command_dat_import(args):
+    """Make changes in dat config"""
+    config_dict = {s:dict(config.items(s)) for s in config.sections()}
+    print(config['PATHS']['DatPath'])
 
 
 

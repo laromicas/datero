@@ -7,7 +7,6 @@ from pydoc import locate
 from datero.commands import config
 from datero.database.models.datfile import Dat
 
-
 class Processor:
     """ Process actions. """
     _previous = None

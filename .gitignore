@@ -2,6 +2,7 @@
 tmp/
 src/datero/seeds/
 database/database.*
+.daterorc
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
