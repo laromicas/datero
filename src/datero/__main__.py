@@ -1,19 +1,22 @@
-from ast import arg
 import configparser
 import json
 import os
+from pathlib import Path
 import re
 import sys
 import argparse
 import pkg_resources
 from tabulate import tabulate
-import time
 
-from datero.commands import Bcolors, Command, config
+from datero.helpers import Bcolors
+from datero.helpers.executor import Command
+from datero.configuration import config
+
 from datero.commands.list import installed_seeds, seed_description
-from datero.commands.doctor import check_dependencies, check_seed, check_installed_packages, check_main_executables
-from datero.commands.seed_manager import seed_available, get_seed_repository, seed_install, seed_remove
+from datero.commands.doctor import check_seed, check_installed_packages, check_main_executables
+from datero.commands.seed_manager import seed_available, get_seed_repository, seed_developer_install, seed_install, seed_remove
 from datero.commands.seed import Seed
+from datero.seeds.unknown_seed import SeedList, detect_seed
 
 #---------Boilerplate to check python version ----------
 if sys.version_info[0] < 3:
@@ -69,7 +72,8 @@ def parse_args():
     parser_install.set_defaults(func=command_seed_install)
     parser_install.add_argument('-r', '--repository', help='Use repository instead of default')
     parser_install.add_argument('-b', '--branch', help='Use branch name instead of master')
-    parser_install.add_argument('-id', '--install-dependencies', help='Install all required dependencies', action='store_true')
+    parser_install.add_argument('-d', '--developer', action='store_true', help='Install developer version (with git)')
+    parser_install.add_argument('-id', '--install-dependencies', action='store_true', help='Install all required dependencies')
 
     parser_remove = subparser_seed.add_parser('remove', help='Remove seed')
     parser_remove.add_argument('seed', help='Seed to remove')
@@ -168,8 +172,32 @@ def command_dat(args):
 
 def command_dat_import(args):
     """Make changes in dat config"""
-    config_dict = {s:dict(config.items(s)) for s in config.sections()}
-    print(config['PATHS']['DatPath'])
+    # config_dict = {s:dict(config.items(s)) for s in config.sections()}
+    dat_root_path = config['PATHS']['DatPath']
+    seed_list = SeedList()
+
+    dats = { str(x):None for x in Path(dat_root_path).rglob("*.[dD][aA][tT]") }
+    cont = 0
+    for dat, type in dats.items():
+        detected = detect_seed(dat, seed_list)
+        print(dat, detected)
+        cont += 1
+        if cont > 100:
+            exit()
+    # for path, subdirs, files in os.walk(dat_root_path):
+    #     for name in files:
+    #         if name.endswith('.dat'):
+    #             detect_seed(name)
+    #             exit()
+                # dat_path = os.path.join(path, name)
+                # print(dat_path)
+                # dat_name = os.path.splitext(name)[0]
+                # dat_seed = os.path.basename(path) #wrong
+                # dat_seed = dat_seed if dat_seed != 'dats' else 'all'
+                # dat_status = 'enabled'
+                # dat = Dat(dat_path, dat_name, dat_seed, dat_status)
+                # dat.save()
+                # print(f'{Bcolors.OKGREEN}Dat {Bcolors.OKCYAN}{dat_seed}:{dat_name}{Bcolors.OKGREEN} imported{Bcolors.ENDC}')
 
 
 
@@ -185,13 +213,13 @@ def command_seed_install(args):
     """Install seed"""
     if check_seed(args.seed):
         print(f'Module Seed {Bcolors.WARNING}{args.seed}{Bcolors.ENDC} already installed')
-        print(f'Reinstall? [y/n]: ', end='')
+        print('Reinstall? [y/n]: ', end='')
         if input().lower() != 'y':
             sys.exit(1)
     repository = get_seed_repository(args.seed) or (args.repository if getattr(args, 'repository', None) else None)
     if not repository:
         print(f'{Bcolors.FAIL}Repository for seed {args.seed} not found.{Bcolors.ENDC}')
-        print(f'Please provide it with --repository parameter.')
+        print('Please provide it with --repository parameter.')
         exit(1)
     seed_install(args, repository)
     print(f'Seed {Bcolors.OKGREEN}{args.seed}{Bcolors.ENDC} installed successfully')
@@ -202,7 +230,7 @@ def command_seed_available(args):
         'installed': Bcolors.OKGREEN,
         'not installed': Bcolors.OKCYAN,
     }
-    print(f'Available seeds:')
+    print('Available seeds:')
     for seed in seed_available():
         installed = 'installed' if check_seed(seed[0]) else 'not installed'
         print(f'* {status[installed]}{seed[0]}{Bcolors.ENDC} - {seed[1][0:60] if len(seed[1]) > 60 else seed[1]}...')
@@ -219,15 +247,15 @@ def command_seed(args):
         print(f'Fetching seed {Bcolors.OKGREEN}{args.seed}{Bcolors.ENDC}')
         if seed.fetch():
             print(f'Errors fetching {Bcolors.FAIL}{args.seed}{Bcolors.ENDC}')
-            print(f'Please enable logs for more information or use -v parameter')
+            print('Please enable logs for more information or use -v parameter')
             command_doctor(args)
     if getattr(args, 'process', False):
-        print(f'=======================')
+        print('=======================')
         print(f'{Bcolors.OKCYAN}Processing seed {Bcolors.OKGREEN}{args.seed}{Bcolors.ENDC}')
-        print(f'=======================')
+        print('=======================')
         if seed.process_dats(filter=getattr(args, 'filter', None)):
             print(f'Errors processing {Bcolors.FAIL}{args.seed}{Bcolors.ENDC}')
-            print(f'Please enable logs for more information or use -v parameter')
+            print('Please enable logs for more information or use -v parameter')
             command_doctor(args)
 
 def command_config(args):
@@ -275,14 +303,14 @@ def command_config(args):
         print(config[myconfig[0]][myconfig[1]])
     elif args.rules_update:
         from datero.database.seeds import dat_rules
-        print(f'Updating rules')
+        print('Updating rules')
         try:
             dat_rules._import_()
-            print(f'Rules updated')
+            print('Rules updated')
         except Exception as e:
             print(f'{Bcolors.FAIL}Error updating rules{Bcolors.ENDC}')
             print(e)
-            print(f'Please enable logs for more information or use -v parameter')
+            print('Please enable logs for more information or use -v parameter')
             command_doctor(args)
     else:
         config_dict = {s:dict(config.items(s)) for s in config.sections()}

@@ -7,7 +7,7 @@ from typing import Dict, Any
 from tinydb import TinyDB, JSONStorage
 from tinydb.middlewares import CachingMiddleware
 
-from datero.commands import config
+from datero.configuration import config
 
 
 os.makedirs(f"{os.path.join(os.getcwd(), config.get('PATHS','DatabasePath'))}", exist_ok=True)

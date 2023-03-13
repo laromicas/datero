@@ -1,6 +1,6 @@
+__all__ = ['config', 'Bcolors', 'is_date', 'sizeof_fmt', 'Command', 'SEEDS_FOLDER']
+
 import os
-import sys
-import configparser
 from .. import ROOT_FOLDER
 
 #TODO: remove links for this

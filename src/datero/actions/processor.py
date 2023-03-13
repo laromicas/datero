@@ -4,8 +4,7 @@ Process actions.
 # pylint: disable=too-few-public-methods
 import os
 from pydoc import locate
-from datero.commands import config
-from datero.database.models.datfile import Dat
+from datero.configuration import config
 
 class Processor:
     """ Process actions. """
@@ -45,6 +44,7 @@ class LoadDatFile(Process):
 
     def process(self):
         """ Load a dat file. """
+        from datero.database.models.datfile import Dat
         self._class = locate(self.class_name)
         self._dat = self._class(file=self.file)
         self._dat.load()
@@ -58,6 +58,7 @@ class DeleteOld(Process):
     database = None
     def process(self):
         """ Delete old dat file. """
+        from datero.database.models.datfile import Dat
         self.database = Dat(seed=self.previous['seed'], name=self.previous['name'])
         self.database.load()
         olddat = self.database.dict()
@@ -77,6 +78,7 @@ class Copy(Process):
 
     def process(self):
         """ Copy files. """
+        from datero.database.models.datfile import Dat
         if self.file:
             origin = self.file
         filename = os.path.basename(origin)
@@ -114,6 +116,7 @@ class SaveToDatabase(Process):
     database = None
     def process(self):
         """ Save process to database. """
+        from datero.database.models.datfile import Dat
         self.database = Dat(**self.previous)
         self.database.save()
         self.database.close()

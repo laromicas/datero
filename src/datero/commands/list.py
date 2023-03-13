@@ -1,5 +1,5 @@
 import os
-from . import SEEDS_FOLDER, Bcolors
+from . import SEEDS_FOLDER
 
 def installed_seeds():
     for seed in os.listdir(SEEDS_FOLDER):

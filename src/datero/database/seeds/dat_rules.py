@@ -4,8 +4,8 @@
 import os
 import json
 import requests
-from datero.commands import config
-from datero.commands import ROOT_FOLDER
+from datero.configuration import config
+from datero import ROOT_FOLDER
 from datero.database.models import System
 
 

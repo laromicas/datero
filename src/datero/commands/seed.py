@@ -1,16 +1,7 @@
 import os
 import json
-import sys
-from tabnanny import verbose
-import time
-from time import sleep
-# mytime0 = time.time()
 from . import Bcolors, Command, SEEDS_FOLDER, config, ROOT_FOLDER
-# mytime1 = time.time()
-# print(f"--- {mytime1 - mytime0} seconds ---")
 from datero.actions.processor import Processor
-# mytime2 = time.time()
-# print(f"--- {mytime2 - mytime1} seconds ---")
 
 class Seed:
     name = None
@@ -72,4 +63,4 @@ class Seed:
         # print(f'\r{line}', end='')
         [print('\b \b', end='') for x in range(0, len(line))]
         print(' ' * (len(line)), end='')
-        print(f'\r', end='')
+        print('\r', end='')

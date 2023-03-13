@@ -2,9 +2,7 @@
 Dat classes to parse different types of dat files.
 """
 # from abc import abstractmethod
-from mimetypes import suffix_map
 import os
-import re
 import shlex
 import xmltodict
 
@@ -139,8 +137,7 @@ class XMLDatFile(DatFile):
         """ Extra configs for some systems. """
         extra_configs = getattr(find_system, 'extra_configs', None)
         if extra_configs:
-            if 'empty_suffix' in extra_configs:
-                if not self.suffix:
+            if 'empty_suffix' in extra_configs and not self.suffix:
                     self.suffix = extra_configs['empty_suffix'].get(self.seed, None)
             if 'additional_suffix' in extra_configs:
                 self.suffix = os.path.join(self.suffix, extra_configs['additional_suffix'].get(self.seed, None))
@@ -192,9 +189,8 @@ class ClrMameProDatFile(DatFile):
                 else:
                     try:
                         key, value = shlex.split(line)
-                    except ValueError:
-                        print(line)
-                        exit()
+                    except ValueError as e:
+                        raise ValueError(f'Error parsing line: {line} from: {self.file}') from e
                     dictionary[key] = value
 
         return dictionary
@@ -203,8 +199,6 @@ class ClrMameProDatFile(DatFile):
         """ Load the data from a ClrMamePro file. """
         header = {}
         games = []
-        index = 0
-        next_data = ''
         with open(self.file, encoding='utf-8', errors='ignore') as file:
             data = file.read()
 

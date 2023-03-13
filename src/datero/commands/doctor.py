@@ -12,18 +12,20 @@ def check_seed(seed):
 def check_version(detected, required, expression):
     detected = pkg_resources.parse_version(detected)
     required = pkg_resources.parse_version(required)
-    if expression == '>':
-        return detected > required
-    elif expression == '<':
-        return detected < required
-    elif expression == '>=':
-        return detected >= required
-    elif expression == '<=':
-        return detected <= required
-    elif expression == '==':
-        return detected == required
-    else:
-        return detected == required
+    match expression:
+        case '>':
+            return detected > required
+        case '<':
+            return detected < required
+        case '>=':
+            return detected >= required
+        case '<=':
+            return detected <= required
+        case '==':
+            return detected == required
+        case _:
+            return detected == required
+        
 
 def check_installed_packages(seed, installed_pkgs):
     if os.path.isfile(os.path.join(SEEDS_FOLDER, seed, 'requirements.txt')):

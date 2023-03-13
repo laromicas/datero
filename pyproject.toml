@@ -49,5 +49,14 @@ include-package-data = true
 [tool.setuptools.dynamic]
 version = {attr = "datero.__version__"}
 
-# TODO Maybe change license to "BSD 3-Clause License"
+[tool.ruff]
+extend-select = ["C4", "SIM", "TCH"]
+ignore = []
+fixable = ["F541"]
+# fixable = ["A", "ANN", "ARG", "B", "BLE", "C", "COM", "D", "DTZ", "E", "EM", "ERA", "EXE", "F", "FBT", "G", "I", "ICN", "INP", "ISC", "N", "PD", "PGH", "PIE", "PL", "PT", "PTH", "Q", "RET", "RUF", "S", "SIM", "T", "TCH", "TID", "TRY", "UP", "W", "YTT"]
+line-length = 120
+show-fixes = true
+target-version = "py310"
+ignore-init-module-imports = true
 
+# TODO Maybe change license to "BSD 3-Clause License"

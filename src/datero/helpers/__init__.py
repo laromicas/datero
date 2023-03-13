@@ -2,8 +2,6 @@
 Helpers
 """
 
-from dateutil import parser
-
 class Bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -23,6 +21,7 @@ class Bcolors:
             setattr(Bcolors, color, '')
 
 def is_date(string, fuzzy=False):
+    from dateutil import parser
     """
     Return whether the string can be interpreted as a date.
 
@@ -44,3 +43,16 @@ def sizeof_fmt(num, suffix="B"):
             return f"{num:3.1f}{unit}{suffix}"
         num /= 1024.0
     return f"{num: .1f}Yi{suffix}"
+
+def is_git_path(path):
+    """ Check if a path is a git repository. """
+    import re
+    pattern = re.compile((r"((git|ssh|http(s)?)|(git@[\w\.]+))(:(//)?)([\w\.@\:/\-~]+)(\.git)(/)?"))
+    return pattern.match(path)
+
+def is_git_repo(path):
+    """ Check if a path is a git repository. """
+    import os
+    if os.path.isdir(os.path.join(path, ".git")):
+        return True
+    return False

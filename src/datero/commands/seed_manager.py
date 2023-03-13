@@ -1,7 +1,10 @@
 import logging
 import os
 import sys
-from . import ROOT_FOLDER, SEEDS_FOLDER, Command
+
+from datero.helpers import is_git_path, is_git_repo
+from . import ROOT_FOLDER, SEEDS_FOLDER
+from datero.helpers.executor import Command
 
 
 def read_seed_repositories():
@@ -25,7 +28,18 @@ def seed_available():
         yield seed[0], seed[2]
 
 
-def seed_install(args, repository):
+def seed_developer_install(args, repository):
+    if not is_git_path(repository) and repository.startswith('/') and not is_git_repo(repository):
+        logging.error(f'{repository} is not a git repository')
+        sys.exit(1)
+    branch = args.branch if getattr(args, 'branch', None) else 'master'
+    url = repository
+    path = os.path.join(SEEDS_FOLDER, args.seed)
+    os.system(f'rm -rf {path}')
+    Command.execute(['git', 'clone', f'{url}', args.seed], cwd=SEEDS_FOLDER)
+    Command.execute(['git', 'checkout', f'{branch}'], cwd=path)
+
+def seed_user_install(args, repository):
     repository = repository if repository.startswith('http') else 'https://' + repository
     repository = repository[:-4] if repository.endswith('.git') else repository
     branch = args.branch if getattr(args, 'branch', None) else 'master'
@@ -36,6 +50,12 @@ def seed_install(args, repository):
     Command.execute(['unzip', f'datero_{args.seed}-{branch}.zip'], cwd=SEEDS_FOLDER)
     os.unlink(os.path.join(SEEDS_FOLDER, f'datero_{args.seed}-{branch}.zip'))
     os.rename(os.path.join(SEEDS_FOLDER, f'datero_{args.seed}-{branch}'), os.path.join(SEEDS_FOLDER, args.seed))
+
+def seed_install(args, repository):
+    if args.developer:
+        seed_developer_install(args, repository)
+    else:
+        seed_user_install(args, repository)
     if args.install_dependencies:
         seed_install_dependencies(args.seed)
 
