@@ -2,11 +2,13 @@ import configparser
 import json
 import os
 from pathlib import Path
+from pydoc import locate
 import re
 import sys
 import argparse
 import pkg_resources
 from tabulate import tabulate
+from datero.database.models.datfile import Dat
 
 from datero.helpers import Bcolors
 from datero.helpers.executor import Command
@@ -14,7 +16,7 @@ from datero.configuration import config
 
 from datero.commands.list import installed_seeds, seed_description
 from datero.commands.doctor import check_seed, check_installed_packages, check_main_executables
-from datero.commands.seed_manager import seed_available, get_seed_repository, seed_developer_install, seed_install, seed_remove
+from datero.commands.seed_manager import seed_available, get_seed_repository, seed_install, seed_remove
 from datero.commands.seed import Seed
 from datero.seeds.rules import Rules
 from datero.seeds.unknown_seed import detect_seed
@@ -180,11 +182,25 @@ def command_dat_import(args):
     dats = { str(x):None for x in Path(dat_root_path).rglob("*.[dD][aA][tT]") }
     if config['IMPORT'].get('IgnoreRegEx'):
         ignore_regex = re.compile(config['IMPORT']['IgnoreRegEx'])
-        dats = { dat:None for dat in dats if not ignore_regex.match(dat) }
+        dats = [ dat for dat in dats if not ignore_regex.match(dat) ]
 
-    for dat in dats:
-        detected = detect_seed(dat, rules)
-        print(f'{dat} - {detected}')
+    fromhere = '/mnt/d/ROMVault/DatRoot/Consoles/Nintendo/Nintendo Entertainment System/NRS/NES 2.0 (NRS) B (1.20211225.R6M5) Headered.dat'
+    found = False
+    for dat_name in dats:
+        if dat_name == fromhere:
+            found = True
+        if not found:
+            continue
+        print(f'{dat_name} - ', end='')
+        seed, class_detected = detect_seed(dat_name, rules)
+        print(f'{seed} - {class_detected}')
+        if class_detected:
+            class_name = locate(class_detected)
+            dat = class_name(file=dat_name)
+            dat.load()
+            database = Dat(seed=seed, **dat.dict())
+            database.save()
+            database.close()
 
 
 def command_seed_remove(args):
