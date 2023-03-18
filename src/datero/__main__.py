@@ -1,5 +1,6 @@
 import configparser
 import json
+import logging
 import os
 from pathlib import Path
 from pydoc import locate
@@ -8,6 +9,7 @@ import sys
 import argparse
 import pkg_resources
 from tabulate import tabulate
+from datero.configuration.logger import enable_logging, set_verbosity
 from datero.database.models.datfile import Dat
 
 from datero.helpers import Bcolors
@@ -119,11 +121,13 @@ def parse_args():
     if getattr(args, 'no_color', False) or os.name == 'nt':
             Bcolors.no_color()
     if getattr(args, 'quiet', False):
-        Command.set_quiet()
+        set_verbosity(logging.WARNING)
+        config['COMMAND']['Quiet'] = 'true'
     if getattr(args, 'verbose', False):
-        Command.set_verbose()
+        set_verbosity(logging.DEBUG)
+        config['COMMAND']['Verbose'] = 'true'
     if getattr(args, 'logging', False):
-        Command.logging()
+        enable_logging()
     return args
 
 def command_dat(args):
@@ -198,7 +202,7 @@ def command_dat_import(args):
             class_name = locate(class_detected)
             dat = class_name(file=dat_name)
             dat.load()
-            database = Dat(seed=seed, **dat.dict())
+            database = Dat(seed=seed, new_file=dat_name, **dat.dict())
             database.save()
             database.close()
 

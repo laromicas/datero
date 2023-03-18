@@ -20,6 +20,14 @@ class Bcolors:
         for color in Bcolors.color_list():
             setattr(Bcolors, color, '')
 
+    @staticmethod
+    def remove_color(string):
+        if not string:
+            return ''
+        for color in Bcolors.color_list():
+            string = string.replace(getattr(Bcolors, color), '')
+        return string
+
 def is_date(string, fuzzy=False):
     from dateutil import parser
     """

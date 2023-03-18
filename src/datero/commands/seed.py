@@ -1,3 +1,4 @@
+import logging
 import os
 import json
 from . import Bcolors, Command, SEEDS_FOLDER, config, ROOT_FOLDER
@@ -38,22 +39,22 @@ class Seed:
             new_path = path.format(dat_path=dat_path)
             for file in os.listdir(new_path):
                 if file.endswith('.dat') and (not filter or filter in file):
-                    if not Command.quiet:
+                    if not config.getboolean('COMMAND', 'Quiet', fallback=False):
                         self.delete_line(line)
                         line = f'Processing {Bcolors.OKCYAN}{file}{Bcolors.ENDC}'
                         print(line, end=' ', flush=True)
                     procesor = Processor(seed=self.name, file=f'{new_path}/{file}', actions=actions)
                     output = [x for x in procesor.process() if (x in self.status_to_show or Command.verbose)]
-                    if not Command.quiet:
+                    if not config.getboolean('COMMAND', 'Quiet', fallback=False):
                         # [print('\b \b', end='') for x in range(0, len(line))]
                         self.delete_line(line)
                         line = f'Processed {Bcolors.OKCYAN}{file}{Bcolors.ENDC}'
                         print(line, end=' ', flush=True)
 
-                    if output and not Command.quiet:
+                    if output and not config.getboolean('COMMAND', 'Quiet', fallback=False):
                         line += str(output)+' '
                         print(output, end=' ', flush=True)
-                    if output or Command.verbose:
+                    if output or config.getboolean('COMMAND', 'Verbose', fallback=False):
                         line = ''
                         print(line)
         self.delete_line(line)

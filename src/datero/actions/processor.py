@@ -93,10 +93,10 @@ class Copy(Process):
             if self.database.is_enabled():
                 old_file = self.database.dict().get('new_file', '')
                 new_file = destination
-                if old_file != new_file or config['GENERAL']['Overwrite'] or not os.path.exists(destination):
+                if old_file != new_file or config.getboolean('GENERAL', 'Overwrite', fallback=False) or not os.path.exists(destination):
                     if old_file != new_file:
                         result = "Updated"
-                    elif config['GENERAL']['Overwrite']:
+                    elif config.getboolean('GENERAL', 'Overwrite', fallback=False):
                         result = "Overwritten"
                     self.previous['new_file'] = destination
                     os.system(f'cp "{origin}" "{destination}"')

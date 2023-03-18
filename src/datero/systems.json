@@ -1352,6 +1352,22 @@
         "system_type": "Handheld"
     },
     {
+        "company": "SNK",
+        "system": "NeoGeo Pocket",
+        "override": {
+            "system": "Neo Geo Pocket"
+        },
+        "system_type": "Handheld"
+    },
+    {
+        "company": "SNK",
+        "system": "NeoGeo Pocket Color",
+        "override": {
+            "system": "Neo Geo Pocket Color"
+        },
+        "system_type": "Handheld"
+    },
+    {
         "company": "Sony",
         "system": "PlayStation",
         "extra_configs": {
