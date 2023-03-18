@@ -16,7 +16,8 @@ from datero.commands.list import installed_seeds, seed_description
 from datero.commands.doctor import check_seed, check_installed_packages, check_main_executables
 from datero.commands.seed_manager import seed_available, get_seed_repository, seed_developer_install, seed_install, seed_remove
 from datero.commands.seed import Seed
-from datero.seeds.unknown_seed import SeedList, detect_seed
+from datero.seeds.rules import Rules
+from datero.seeds.unknown_seed import detect_seed
 
 #---------Boilerplate to check python version ----------
 if sys.version_info[0] < 3:
@@ -174,31 +175,16 @@ def command_dat_import(args):
     """Make changes in dat config"""
     # config_dict = {s:dict(config.items(s)) for s in config.sections()}
     dat_root_path = config['PATHS']['DatPath']
-    seed_list = SeedList()
+    rules = Rules().rules
 
     dats = { str(x):None for x in Path(dat_root_path).rglob("*.[dD][aA][tT]") }
-    cont = 0
-    for dat, type in dats.items():
-        detected = detect_seed(dat, seed_list)
-        print(dat, detected)
-        cont += 1
-        if cont > 100:
-            exit()
-    # for path, subdirs, files in os.walk(dat_root_path):
-    #     for name in files:
-    #         if name.endswith('.dat'):
-    #             detect_seed(name)
-    #             exit()
-                # dat_path = os.path.join(path, name)
-                # print(dat_path)
-                # dat_name = os.path.splitext(name)[0]
-                # dat_seed = os.path.basename(path) #wrong
-                # dat_seed = dat_seed if dat_seed != 'dats' else 'all'
-                # dat_status = 'enabled'
-                # dat = Dat(dat_path, dat_name, dat_seed, dat_status)
-                # dat.save()
-                # print(f'{Bcolors.OKGREEN}Dat {Bcolors.OKCYAN}{dat_seed}:{dat_name}{Bcolors.OKGREEN} imported{Bcolors.ENDC}')
+    if config['IMPORT'].get('IgnoreRegEx'):
+        ignore_regex = re.compile(config['IMPORT']['IgnoreRegEx'])
+        dats = { dat:None for dat in dats if not ignore_regex.match(dat) }
 
+    for dat in dats:
+        detected = detect_seed(dat, rules)
+        print(f'{dat} - {detected}')
 
 
 def command_seed_remove(args):

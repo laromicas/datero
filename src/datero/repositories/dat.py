@@ -98,15 +98,20 @@ class XMLDatFile(DatFile):
     """ XML dat file. """
     shas = None
     game_key = 'game'
+    header = None
 
     def load(self) -> None:
         """ Load the data from a XML file. """
         with open(self.file, encoding='utf-8') as fild:
             self.data = xmltodict.parse(fild.read(), process_namespaces=True)
-            header = self.data['datafile']['header']
-            self.name = header['name'] if 'name' in header else None
-            self.full_name = header['description'] if 'description' in header else None
-            self.date = header['date'] if 'date' in header else None
+            self.header = self.data['datafile']['header']
+            self.name = self.header['name'] if 'name' in self.header else None
+            self.full_name = self.header['description'] if 'description' in self.header else None
+            self.date = self.header['date'] if 'date' in self.header else None
+            self.homepage = self.header['homepage'] if 'homepage' in self.header and self.header['homepage'] and 'insert' not in self.header['homepage'] else None
+            self.url = self.header['url'] if 'url' in self.header and self.header['url'] and 'insert' not in self.header['url'] else None
+            self.author = self.header['author'] if 'author' in self.header and self.header['author'] and 'insert' not in self.header['author'] else None
+            self.email = self.header['email'] if 'email' in self.header and self.header['email'] and 'insert' not in self.header['email'] else None
 
     def get_rom_shas(self) -> None:
         """ Get the shas for the roms and creates an index. """
@@ -152,6 +157,8 @@ class XMLDatFile(DatFile):
 
 class ClrMameProDatFile(DatFile):
     """ ClrMamePro dat file. """
+    header = {}
+    games = []
 
     def get_next_block(self, data):
         """ Get the next block of data. """
@@ -197,26 +204,25 @@ class ClrMameProDatFile(DatFile):
 
     def load(self) -> None:
         """ Load the data from a ClrMamePro file. """
-        header = {}
-        games = []
+        self.games = []
         with open(self.file, encoding='utf-8', errors='ignore') as file:
             data = file.read()
 
             block, next_block = self.get_next_block(data)
-            header = self.read_block(block)
+            self.header = self.read_block(block)
 
             while next_block:
                 block, next_block = self.get_next_block(next_block)
-                games.append(self.read_block(block))
+                self.games.append(self.read_block(block))
 
         self.data = {
             'datafile': {
-                'header':  header,
-                'game': games
+                'header':  self.header,
+                'game': self.games
             }
         }
-        self.name = header['name']
-        self.full_name = header['description']
+        self.name = self.header['name']
+        self.full_name = self.header['description']
 
     def get_rom_shas(self) -> None:
         """ TODO Method """
