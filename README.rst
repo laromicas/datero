@@ -118,7 +118,7 @@ find . -type f -iname '*.dat' -printf '%h\n'|sort|uniq -cd
 
 Find and delete empty folders:
 ```
-find . -type d -empty -delete
+find . -type d -empty -print -delete
 ```
 
 

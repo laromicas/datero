@@ -420,6 +420,11 @@
         "system_type": "Video"
     },
     {
+        "company": "Hasbro",
+        "system": "iON Educational Gaming System",
+        "system_type": "Console"
+    },
+    {
         "company": "Hitachi",
         "system": "S1",
         "system_type": "Computer"
@@ -809,6 +814,14 @@
     },
     {
         "company": "NEC",
+        "system": "PC Engine - TurboGrafx-16",
+        "override": {
+            "system": "PC Engine - TurboGrafx 16"
+        },
+        "system_type": "Console"
+    },
+    {
+        "company": "NEC",
         "system": "PC Engine - TurboGrafx 16",
         "system_type": "Console"
     },
@@ -1048,6 +1061,14 @@
         "company": "Nintendo",
         "system": "Virtual Boy",
         "system_type": "Console"
+    },
+    {
+        "company": "Nintendo",
+        "system": "Wallpapers",
+        "override": {
+            "modifier": "Manuals"
+        },
+        "system_type": "Source Code"
     },
     {
         "company": "Nokia",
@@ -1581,6 +1602,35 @@
             }
         },
         "system_type": "Mobile"
+    },
+    {
+        "company": "Non-Game",
+        "system": "Miscellaneous - Stand-Up Comedy",
+        "extra_configs": {
+            "if_suffix": {
+                "Audio CD": {
+                    "modifier": "Audio"
+                }
+            }
+        },
+        "system_type": "Video"
+    },
+    {
+        "company": "Non-Game",
+        "system": "Miscellaneous - Instructional",
+        "extra_configs": {
+            "if_suffix": {
+                "Audio CD": {
+                    "modifier": "Audio"
+                }
+            }
+        },
+        "system_type": "Video"
+    },
+    {
+        "company": "Non-Game",
+        "system": "Audio CD",
+        "system_type": "Audio"
     },
     {
         "company": null,
