@@ -7,17 +7,15 @@ from pydoc import locate
 import re
 import sys
 import argparse
-import pkg_resources
 from tabulate import tabulate
 from datero.configuration.logger import enable_logging, set_verbosity
 from datero.database.models.datfile import Dat
 
 from datero.helpers import Bcolors
-from datero.helpers.executor import Command
 from datero.configuration import config
 
 from datero.commands.list import installed_seeds, seed_description
-from datero.commands.doctor import check_seed, check_installed_packages, check_main_executables
+from datero.commands.doctor import check_dependencies, check_main_executables, check_seed
 from datero.commands.seed_manager import seed_available, get_seed_repository, seed_install, seed_remove
 from datero.commands.seed import Seed
 from datero.seeds.rules import Rules
@@ -51,6 +49,7 @@ def parse_args():
     parser_doctor = subparser.add_parser('doctor', help='Doctor installed seeds')
     parser_doctor.add_argument('command', nargs='?', help='Seed to doctor')
     parser_doctor.set_defaults(func=command_doctor)
+    parser_doctor.add_argument('-r', '--repair', action='store_true', help='Try to repair seed(s)')
 
     parser_dat = subparser.add_parser('dat', help='Make changes in dat config')
     parser_dat.add_argument('command', nargs='?', help='Command to execute')
@@ -331,6 +330,7 @@ def command_list(args): # pylint: disable=unused-argument
 
 def command_doctor(args):
     """Doctor installed seeds"""
+    check_main_executables()
     if getattr(args, 'seed', False):
         seed = check_seed(args.seed)
         if not seed:
@@ -339,11 +339,17 @@ def command_doctor(args):
         seeds = [(args.seed, seed_description(args.seed))]
     else:
         seeds = installed_seeds()
-    installed_pkgs = {pkg.key: pkg.version for pkg in pkg_resources.working_set}
     for seed in seeds:
-        print(f'* {Bcolors.OKCYAN}{seed[0]}{Bcolors.ENDC}')
-        check_installed_packages(seed[0], installed_pkgs)
-        check_main_executables(seed[0])
+        check_dependencies(seed[0], args.repair)
+        # print(f'* {Bcolors.OKCYAN}{seed[0]}{Bcolors.ENDC}')
+        # check_installed_packages(seed[0], installed_pkgs)
+        # check_main_executables(seed[0])
+        # if args.repair:
+        #     print('Trying to repair...')
+        #     seed = Seed(name=seed[0])
+        #     seed.fetch()
+        #     seed.process_dats()
+        #     print('  Repair done')
 
 
 def main():
