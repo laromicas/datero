@@ -9,15 +9,40 @@ formatter = logging.Formatter("[%(asctime)s - %(levelname)s] - %(message)s", "%Y
 class TrimmedFileHandler(logging.FileHandler):
     def emit(self, record):
         # Get the log message
-        msg = Bcolors.remove_color(self.format(record).strip())
+        msg = self.format(record).strip()
 
         # Write the trimmed message to the file
         if msg:
             try:
-                self.stream.write(msg + self.terminator)
+                self.stream.write(Bcolors.remove_color(msg) + self.terminator)
                 self.flush()
             except Exception:
                 self.handleError(record)
+
+
+
+class TrimmedStreamHandler(logging.StreamHandler):
+    def emit(self, record):
+        """
+        Emit a record.
+
+        If a formatter is specified, it is used to format the record.
+        The record is then written to the stream with a trailing newline.  If
+        exception information is present, it is formatted using
+        traceback.print_exception and appended to the stream.  If the stream
+        has an 'encoding' attribute, it is used to determine how to do the
+        output to the stream.
+        """
+        try:
+            msg = self.format(record)
+            stream = self.stream
+            # issue 35046: merged two stream.writes into one.
+            stream.write(msg)
+            self.flush()
+        except RecursionError:  # See issue 36272
+            raise
+        except Exception:
+            self.handleError(record)
 
 # Get root logger
 logger = logging.getLogger()
@@ -35,7 +60,7 @@ if config.getboolean('LOG', 'Logging', fallback=False):
     enable_logging()
 
 # Create a stream handler
-stream_handler = logging.StreamHandler()
+stream_handler = TrimmedStreamHandler()
 stream_handler.setLevel(logging.INFO)
 if config.getboolean('COMMAND', 'Verbose', fallback=False):
     stream_handler.setLevel(logging.DEBUG)

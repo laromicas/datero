@@ -12,6 +12,13 @@ class Bcolors:
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
+    BOLDBLUE = '\e[1;34m'
+    BOLDCYAN = '\e[1;36m'
+    BOLDGREEN = '\e[1;32m'
+    BOLDRED = '\e[1;31m'
+    BOLDYELLOW = '\e[1;33m'
+    BOLDWHITE = '\e[1;37m'
+    BOLDMAGENTA = '\e[1;35m'
 
     def color_list():
         return [attr for attr in Bcolors.__dict__ if not callable(getattr(Bcolors, attr)) and not attr.startswith("__")]

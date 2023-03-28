@@ -61,6 +61,7 @@ def check_main_executables():
         'unzip': 'unzip',
         '7z': 'p7zip',
         'geckodriver': 'geckodriver',
+        'aria2c': 'aria2',
     }
     for exe, pkg in req_executables.items():
         if which(exe) is None and which(exe + '.exe') is None:
