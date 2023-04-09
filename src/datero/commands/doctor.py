@@ -1,18 +1,23 @@
+"""Check if all dependencies are installed"""
+
 import os
 import re
 import subprocess
 import sys
 from shutil import which
 import pkg_resources
-from . import SEEDS_FOLDER, Bcolors
+from datero.configuration import SEEDS_FOLDER
+from datero.helpers import Bcolors
 
 ignore_packages = ['pyOpenSSL', 'PySocks']
 
 
 def check_seed(seed):
+    """ Check if seed is installed """
     return os.path.isdir(os.path.join(SEEDS_FOLDER, seed))
 
 def check_version(detected, required, expression):
+    """ Check if version of required package is correct """
     detected = pkg_resources.parse_version(detected)
     required = pkg_resources.parse_version(required)
     match expression:
@@ -30,10 +35,11 @@ def check_version(detected, required, expression):
             return detected == required
 
 def required_packages(seed, installed_pkgs):
+    """ Check if all required packages are installed """
     fixable = []
     not_fixable = []
     if os.path.isfile(os.path.join(SEEDS_FOLDER, seed, 'requirements.txt')):
-        with open(os.path.join(SEEDS_FOLDER, seed, 'requirements.txt'), 'r') as req:
+        with open(os.path.join(SEEDS_FOLDER, seed, 'requirements.txt'), 'r', encoding='utf-8') as req:
             for line in req:
                 line = line.strip()
                 if line.startswith('#') or line == '':
@@ -53,9 +59,11 @@ def required_packages(seed, installed_pkgs):
     return fixable, not_fixable
 
 def install(package):
+    """ Install package """
     subprocess.check_call([sys.executable, "-m", "pip", "install", package])
 
 def check_main_executables():
+    """ Check if all main executables are installed """
     req_executables = {
         'wget': 'wget',
         'unzip': 'unzip',
@@ -69,6 +77,7 @@ def check_main_executables():
 
 
 def check_needed_files(seed):
+    """ Check if all needed files are present """
     req_files = {
         '__init__.py': 'Namespace initialization file',
         'fetch': 'Fetch script',
@@ -81,7 +90,8 @@ def check_needed_files(seed):
 
 
 def check_dependencies(seed, repair=False):
-    installed_pkgs = {pkg.key: pkg.version for pkg in pkg_resources.working_set}
+    """ Check if all dependencies are installed """
+    installed_pkgs = {pkg.key: pkg.version for pkg in pkg_resources.working_set} #pylint: disable=not-an-iterable
     print(f'* {Bcolors.OKCYAN}{seed}{Bcolors.ENDC}')
     # check_installed_packages(seed, installed_pkgs)
     fixable, not_fixable = required_packages(seed, installed_pkgs)
@@ -101,4 +111,3 @@ def check_dependencies(seed, repair=False):
     if not fixable and not not_fixable:
         print(f'{Bcolors.OKGREEN}  - All requirements installed{Bcolors.ENDC}')
     check_needed_files(seed)
-

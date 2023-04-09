@@ -1,3 +1,4 @@
+""" Configuration module. """
 import configparser
 import os
 

@@ -1,3 +1,4 @@
+"""Main entry point for datero"""
 import configparser
 import json
 import logging
@@ -11,6 +12,7 @@ from tabulate import tabulate
 from datero.configuration.logger import enable_logging, set_verbosity
 from datero.database.models.datfile import Dat
 
+from datero import __version__, ROOT_FOLDER
 from datero.helpers import Bcolors
 from datero.configuration import config
 
@@ -21,13 +23,20 @@ from datero.commands.seed import Seed
 from datero.seeds.rules import Rules
 from datero.seeds.unknown_seed import detect_seed
 
+
 #---------Boilerplate to check python version ----------
-if sys.version_info[0] < 3:
-    print("This is a Python 3 script. Please run it with Python 3.")
-    exit(1)
+if sys.version_info[0] < 3 or sys.version_info.minor < 9:
+    print("This is a Python 3 script. Please run it with Python 3.9 or above")
+    sys.exit(1)
 
 
-def parse_args():
+def parse_args() -> argparse.Namespace:
+    """Parse command line arguments
+
+    Returns:
+        argparse.Namespace: An object to take the attributes.
+    """
+    #pylint: disable=too-many-locals,too-many-statements
     parser = argparse.ArgumentParser(description='Update dats from different sources.')
     subparser = parser.add_subparsers(help='sub-command help')
 
@@ -60,11 +69,9 @@ def parse_args():
     parser_dat.add_argument('-ss', '--set-status', help='Select all dats', choices=['enabled', 'disabled'])
     parser_dat.add_argument('-on', '--only-names', action='store_true', help='Only show names')
 
-    # parser_dat.add_argument('-t', '--table', default='dats', help='Select table', choices=['dats', 'systems'])
-
     parser_dat.set_defaults(func=command_dat)
 
-    """ Seed admin commands """
+    # Seed admin commands
     parser_seed = subparser.add_parser('seed', help='Seed scripts')
     subparser_seed = parser_seed.add_subparsers(help='sub-command help')
 
@@ -84,21 +91,18 @@ def parse_args():
     parser_remove.set_defaults(func=command_seed_remove)
 
     parser_import = subparser.add_parser('import', help='Import dats from existing romvault')
-    # parser_import.add_argument('path', help='DatRoot path')
     parser_import.set_defaults(func=command_dat_import)
 
 
-    """ Seed commands """
-    commands = []
+    # Seed commands
     for seed in list(installed_seeds()) + [('all', 'All seeds')]:
         parser_command = subparser.add_parser(seed[0], help=f'Update seed {seed[0]}')
         parser_command.set_defaults(func=command_seed, seed=seed[0])
         parser_command.add_argument('-f', '--fetch', action='store_true', help='Fetch seed')
         parser_command.add_argument('-p', '--process', action='store_true', help='Process dats from seed')
         parser_command.add_argument('-fd', '--filter', help='Filter dats to process')
-        commands.append(parser_command)
 
-    """ Common arguments """
+    # Common arguments
     subparsers = [subparser, subparser_seed]
     for subpars in subparsers:
         for subpar in subpars.choices.values():
@@ -110,15 +114,18 @@ def parse_args():
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
         sys.exit(1)
-
     args = parser.parse_args()
+    initial_setup(args)
+    return args
+
+
+def initial_setup(args) -> None:
+    """ Initial setup of datero from command line arguments """
     if getattr(args, 'version', False):
-        from . import __version__
         print(__version__)
         sys.exit()
-
     if getattr(args, 'no_color', False) or os.name == 'nt':
-            Bcolors.no_color()
+        Bcolors.no_color()
     if getattr(args, 'quiet', False):
         set_verbosity(logging.WARNING)
         config['COMMAND']['Quiet'] = 'true'
@@ -127,10 +134,10 @@ def parse_args():
         config['COMMAND']['Verbose'] = 'true'
     if getattr(args, 'logging', False):
         enable_logging()
-    return args
+
 
 def command_dat(args):
-    """Make changes in dat config"""
+    """ Make changes in dat config """
     from datero.database import DB
     from tinydb import Query
     query = Query()
@@ -176,9 +183,9 @@ def command_dat(args):
             print(tabulate(output, headers='keys', tablefmt='psql'))
             sys.exit(0)
 
-def command_dat_import(args):
-    """Make changes in dat config"""
-    # config_dict = {s:dict(config.items(s)) for s in config.sections()}
+
+def command_dat_import(_) -> None:
+    """ Make changes in dat config """
     dat_root_path = config['PATHS']['DatPath']
     rules = Rules().rules
 
@@ -206,16 +213,17 @@ def command_dat_import(args):
             database.close()
 
 
-def command_seed_remove(args):
-    """Remove seed"""
+def command_seed_remove(args) -> None:
+    """ Remove seed """
     if not check_seed(args.seed):
         print(f'Module Seed {Bcolors.FAIL}  - {Bcolors.BOLD}{args.seed}{Bcolors.ENDC} not found')
-        exit(1)
+        sys.exit(1)
     seed_remove(args.seed)
     print(f'Seed {Bcolors.OKGREEN}{args.seed}{Bcolors.ENDC} removed successfully')
 
-def command_seed_install(args):
-    """Install seed"""
+
+def command_seed_install(args) -> None:
+    """ Install seed """
     if check_seed(args.seed):
         print(f'Module Seed {Bcolors.WARNING}{args.seed}{Bcolors.ENDC} already installed')
         print('Reinstall? [y/n]: ', end='')
@@ -225,12 +233,13 @@ def command_seed_install(args):
     if not repository:
         print(f'{Bcolors.FAIL}Repository for seed {args.seed} not found.{Bcolors.ENDC}')
         print('Please provide it with --repository parameter.')
-        exit(1)
+        sys.exit(1)
     seed_install(args, repository)
     print(f'Seed {Bcolors.OKGREEN}{args.seed}{Bcolors.ENDC} installed successfully')
 
-def command_seed_available(args):
-    """List available seeds"""
+
+def command_seed_available(_) -> None:
+    """ List available seeds """
     status = {
         'installed': Bcolors.OKGREEN,
         'not installed': Bcolors.OKCYAN,
@@ -240,8 +249,9 @@ def command_seed_available(args):
         installed = 'installed' if check_seed(seed[0]) else 'not installed'
         print(f'* {status[installed]}{seed[0]}{Bcolors.ENDC} - {seed[1][0:60] if len(seed[1]) > 60 else seed[1]}...')
 
-def command_seed(args):
-    """Commands with the seed (must be installed)"""
+
+def command_seed(args) -> None:
+    """ Commands with the seed (must be installed) """
     if args.seed == 'all':
         for seed in installed_seeds():
             if config['PROCESS'].get('SeedIgnoreRegEx'):
@@ -267,79 +277,98 @@ def command_seed(args):
             print('Please enable logs for more information or use -v parameter')
             command_doctor(args)
 
-def command_config(args):
-    """Config commands"""
+
+def command_config_save(_) -> None:
+    """ Save config to file """
+    with open('.daterorc', 'w', encoding='utf-8') as file:
+        config.write(file)
+    print(f'Config saved to {Bcolors.OKGREEN}.daterorc{Bcolors.ENDC}')
+
+
+def command_config_set(args) -> None:
+    """ Set config value, if global is set, it will be set in datero.ini file """
+    myconfig = args.set[0].split('.')
+    if len(myconfig) != 2:
+        print(f'{Bcolors.FAIL}Invalid config key, must be in <SECTION>.<Option> format. {Bcolors.ENDC}')
+        sys.exit(1)
+    if myconfig[1] not in config[myconfig[0]]:
+        print(f'{Bcolors.FAIL}Invalid config option. {Bcolors.ENDC}')
+        sys.exit(1)
+
+    newconfig = configparser.ConfigParser(comment_prefixes='/', allow_no_value=True)
+    newconfig.optionxform = lambda option: option
+    if getattr(args, 'global', False):
+        file = os.path.join(ROOT_FOLDER, 'datero.ini')
+    else:
+        file = os.path.join(os.getcwd(), '.daterorc')
+    newconfig.read(file)
+    if not newconfig.has_section(myconfig[0]):
+        newconfig.add_section(myconfig[0])
+    newconfig[myconfig[0]][myconfig[1]] = args.set[1]
+    with open(file, 'w', encoding='utf-8') as file:
+        newconfig.write(file)
+    if getattr(args, 'global', False):
+        print(f'{Bcolors.OKGREEN}Global config {Bcolors.OKCYAN}{myconfig[0]}.{myconfig[1]}{Bcolors.OKGREEN} set to {Bcolors.OKBLUE}{args.set[1]}{Bcolors.ENDC}')
+    else:
+        print(f'{Bcolors.OKGREEN}Local Config {Bcolors.OKCYAN}{myconfig[0]}.{myconfig[1]}{Bcolors.OKGREEN} set to {Bcolors.OKBLUE}{args.set[1]}{Bcolors.ENDC}')
+
+
+def command_config_get(args) -> None:
+    """ Get active config value """
+    myconfig = args.get.split('.')
+    if len(myconfig) != 2:
+        print(myconfig)
+        print(f'{Bcolors.FAIL}Invalid config key, must be in <SECTION>.<Option> format. {Bcolors.ENDC}')
+        sys.exit(1)
+    if myconfig[1] not in config[myconfig[0]]:
+        print(f'{Bcolors.FAIL}Invalid config option. {Bcolors.ENDC}')
+        sys.exit(1)
+    print(config[myconfig[0]][myconfig[1]])
+
+
+def command_config_rules_update(args) -> None:
+    """ Update rules from google sheet """
+    from datero.database.seeds import dat_rules
+    print('Updating rules')
+    try:
+        dat_rules.import_dats()
+        print('Rules updated')
+    except Exception as exc:
+        print(f'{Bcolors.FAIL}Error updating rules{Bcolors.ENDC}')
+        print(exc)
+        print('Please enable logs for more information or use -v parameter')
+        command_doctor(args)
+
+
+def command_config(args) -> None:
+    """ Config commands """
     if args.save:
-        with open('.daterorc', 'w') as file:
-            config.write(file)
-        print(f'Config saved to {Bcolors.OKGREEN}.daterorc{Bcolors.ENDC}')
+        command_config_save(args)
     elif args.set:
-        myconfig = args.set[0].split('.')
-        if len(myconfig) != 2:
-            print(f'{Bcolors.FAIL}Invalid config key, must be in <SECTION>.<Option> format. {Bcolors.ENDC}')
-            sys.exit(1)
-        if myconfig[1] not in config[myconfig[0]]:
-            print(f'{Bcolors.FAIL}Invalid config option. {Bcolors.ENDC}')
-            sys.exit(1)
-
-        from . import ROOT_FOLDER
-
-        newconfig = configparser.ConfigParser(comment_prefixes='/', allow_no_value=True)
-        newconfig.optionxform = lambda option: option
-        if getattr(args, 'global', False):
-            file = os.path.join(ROOT_FOLDER, 'datero.ini')
-        else:
-            file = os.path.join(os.getcwd(), '.daterorc')
-        newconfig.read(file)
-        if not newconfig.has_section(myconfig[0]):
-            newconfig.add_section(myconfig[0])
-        newconfig[myconfig[0]][myconfig[1]] = args.set[1]
-        with open(file, 'w') as file:
-            newconfig.write(file)
-        if getattr(args, 'global', False):
-            print(f'{Bcolors.OKGREEN}Global config {Bcolors.OKCYAN}{myconfig[0]}.{myconfig[1]}{Bcolors.OKGREEN} set to {Bcolors.OKBLUE}{args.set[1]}{Bcolors.ENDC}')
-        else:
-            print(f'{Bcolors.OKGREEN}Local Config {Bcolors.OKCYAN}{myconfig[0]}.{myconfig[1]}{Bcolors.OKGREEN} set to {Bcolors.OKBLUE}{args.set[1]}{Bcolors.ENDC}')
+        command_config_set(args)
     elif args.get:
-        myconfig = args.get.split('.')
-        if len(myconfig) != 2:
-            print(myconfig)
-            print(f'{Bcolors.FAIL}Invalid config key, must be in <SECTION>.<Option> format. {Bcolors.ENDC}')
-            sys.exit(1)
-        if myconfig[1] not in config[myconfig[0]]:
-            print(f'{Bcolors.FAIL}Invalid config option. {Bcolors.ENDC}')
-            sys.exit(1)
-        print(config[myconfig[0]][myconfig[1]])
+        command_config_get(args)
     elif args.rules_update:
-        from datero.database.seeds import dat_rules
-        print('Updating rules')
-        try:
-            dat_rules._import_()
-            print('Rules updated')
-        except Exception as e:
-            print(f'{Bcolors.FAIL}Error updating rules{Bcolors.ENDC}')
-            print(e)
-            print('Please enable logs for more information or use -v parameter')
-            command_doctor(args)
+        command_config_rules_update(args)
     else:
         config_dict = {s:dict(config.items(s)) for s in config.sections()}
         print(json.dumps(config_dict, indent=4))
 
 
-def command_list(args): # pylint: disable=unused-argument
-    """List installed seeds"""
+def command_list(_):
+    """ List installed seeds """
     seeds = installed_seeds()
     for seed in seeds:
         print(f'* {Bcolors.OKCYAN}{seed[0]}{Bcolors.ENDC} - {seed[1][0:60] if len(seed[1]) > 60 else seed[1]}...')
 
 def command_doctor(args):
-    """Doctor installed seeds"""
+    """ Doctor installed seeds """
     check_main_executables()
     if getattr(args, 'seed', False):
         seed = check_seed(args.seed)
         if not seed:
             print(f'Module Seed {Bcolors.FAIL}  - {Bcolors.BOLD}{args.seed}{Bcolors.ENDC} not found')
-            exit(1)
+            sys.exit(1)
         seeds = [(args.seed, seed_description(args.seed))]
     else:
         seeds = installed_seeds()
@@ -347,7 +376,7 @@ def command_doctor(args):
         check_dependencies(seed[0], args.repair)
 
 def main():
-    """Main function"""
+    """ Main function """
     args = parse_args()
     args.func(args)
 

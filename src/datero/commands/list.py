@@ -1,7 +1,9 @@
+"""List all installed seeds."""
 import os
-from . import SEEDS_FOLDER
+from datero.configuration import SEEDS_FOLDER
 
 def installed_seeds():
+    """ List all installed seeds. """
     for seed in os.listdir(SEEDS_FOLDER):
         if not os.path.isdir(os.path.join(SEEDS_FOLDER, seed)) or seed.startswith('__'):
             continue
@@ -10,8 +12,9 @@ def installed_seeds():
         yield (name, description)
 
 def seed_description(seed):
+    """ Get seed description. """
     description = ''
     if os.path.isfile(os.path.join(SEEDS_FOLDER, seed, 'description.txt')):
-        with open(os.path.join(SEEDS_FOLDER, seed, 'description.txt'), 'r') as desc:
+        with open(os.path.join(SEEDS_FOLDER, seed, 'description.txt'), 'r', encoding='utf-8') as desc:
             description = desc.readline().strip()
     return description

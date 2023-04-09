@@ -1,3 +1,7 @@
+""" Command executor
+
+This module provides a wrapper for subprocess.Popen to execute commands.
+"""
 import logging
 from subprocess import PIPE, CalledProcessError, Popen
 from datero.configuration import config
@@ -12,8 +16,10 @@ class Command:
     def __init__(self, command):
         self.command = command
 
-    # def execute(args, bufsize=- 1, executable=None, stdin=None, stdout=None, stderr=None, preexec_fn=None, close_fds=True, shell=False, cwd=None, env=None, universal_newlines=None, startupinfo=None, creationflags=0, restore_signals=True, start_new_session=False, pass_fds=(), group=None, extra_groups=None, user=None, umask=- 1, encoding=None, errors=None, text=None, pipesize=- 1, process_group=None): popen
+    @staticmethod
     def execute(args, cwd=None, env=None, universal_newlines=True, shell=False):
+        """ Execute a command, allows to write to log and stdout. """
+        # pylint: disable=consider-using-with
         def execute(args):
             popen = Popen(args, stdout=PIPE, universal_newlines=universal_newlines, cwd=cwd, env=env, shell=shell)
             for stdout_line in iter(popen.stdout.readline, ""):
@@ -24,5 +30,4 @@ class Command:
                 raise CalledProcessError(return_code, args)
 
         for output in execute(args):
-            # print(output, end="")
             logging.info(output)

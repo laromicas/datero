@@ -70,7 +70,7 @@ class Dat(DatabaseModel):
 
     def is_enabled(self):
         """ Check if the dat is enabled. """
-        return not getattr(self, 'status', None) or self.status == 'enabled'
+        return not getattr(self, 'status', None) or self.status == 'enabled' # pylint: disable=no-member
 
 
 class Seed(DatabaseModel):

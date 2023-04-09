@@ -1,3 +1,4 @@
+""" Unknown seed, detects version and type of dat already in DatRoot. """
 import re
 from datero.repositories.dat import ClrMameProDatFile, XMLDatFile
 
@@ -41,7 +42,7 @@ def detect_seed(dat_file: str, rules_classes):
         except Exception:
             return None, None
 
-def comparator(key, value, operator):
+def comparator(key, value, operator): # pylint: disable=too-many-return-statements
     """ Returns a boolean based on the comparison of the key and value. """
     match operator:
         case 'eq' | 'equals' | '==':

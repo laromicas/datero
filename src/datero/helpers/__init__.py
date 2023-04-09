@@ -1,8 +1,13 @@
 """
 Helpers
 """
+import re
+import os
+from dateutil import parser
 
 class Bcolors:
+    # pylint: disable=anomalous-backslash-in-string
+    """ Color class. """
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
     OKCYAN = '\033[96m'
@@ -20,23 +25,27 @@ class Bcolors:
     BOLDWHITE = '\e[1;37m'
     BOLDMAGENTA = '\e[1;35m'
 
-    def color_list():
+    @staticmethod
+    def color_list() -> list:
+        """ Return list of colors. """
         return [attr for attr in Bcolors.__dict__ if not callable(getattr(Bcolors, attr)) and not attr.startswith("__")]
 
-    def no_color():
+    @staticmethod
+    def no_color() -> None:
+        """ Disables color output. """
         for color in Bcolors.color_list():
             setattr(Bcolors, color, '')
 
     @staticmethod
-    def remove_color(string):
+    def remove_color(string) -> str:
+        """ Remove color from string. """
         if not string:
             return ''
         for color in Bcolors.color_list():
             string = string.replace(getattr(Bcolors, color), '')
         return string
 
-def is_date(string, fuzzy=False):
-    from dateutil import parser
+def is_date(string, fuzzy=False) -> bool:
     """
     Return whether the string can be interpreted as a date.
 
@@ -51,7 +60,7 @@ def is_date(string, fuzzy=False):
         return False
 
 
-def sizeof_fmt(num, suffix="B"):
+def sizeof_fmt(num, suffix="B") -> str:
     """ Convert bytes to human readable format. """
     for unit in ["", "Ki", "Mi", "Gi", "Ti", "Pi", "Ei", "Zi"]:
         if abs(num) < 1024.0:
@@ -59,15 +68,13 @@ def sizeof_fmt(num, suffix="B"):
         num /= 1024.0
     return f"{num: .1f}Yi{suffix}"
 
-def is_git_path(path):
+def is_git_path(path) -> bool:
     """ Check if a path is a git repository. """
-    import re
     pattern = re.compile((r"((git|ssh|http(s)?)|(git@[\w\.]+))(:(//)?)([\w\.@\:/\-~]+)(\.git)(/)?"))
     return pattern.match(path)
 
-def is_git_repo(path):
+def is_git_repo(path) -> bool:
     """ Check if a path is a git repository. """
-    import os
     if os.path.isdir(os.path.join(path, ".git")):
         return True
     return False

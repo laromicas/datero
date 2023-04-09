@@ -1,21 +1,24 @@
+""" Seed manager, list, install and remove seeds. """
 import logging
 import os
 import sys
 
+from datero.configuration import ROOT_FOLDER, SEEDS_FOLDER
 from datero.helpers import is_git_path, is_git_repo
-from . import ROOT_FOLDER, SEEDS_FOLDER
 from datero.helpers.executor import Command
 
 
 def read_seed_repositories():
-    with open(os.path.join(ROOT_FOLDER, 'seeds.txt'), 'r') as seeds:
+    """ Read seed repositories from seeds.txt file. """
+    with open(os.path.join(ROOT_FOLDER, 'seeds.txt'), 'r', encoding='utf-8') as seeds:
         for seed in seeds:
             seed = seed.strip().split(' ')
             yield (seed[0], seed[1], ' '.join(seed[2:]) if len(seed) > 2 else '')
 
 
 def get_seed_repository(seed_needed):
-    with open(os.path.join(ROOT_FOLDER, 'seeds.txt'), 'r') as seeds:
+    """ Get seed repository from seeds.txt file. """
+    with open(os.path.join(ROOT_FOLDER, 'seeds.txt'), 'r', encoding='utf-8') as seeds:
         for seed in seeds:
             seed = seed.strip().split(' ')
             if seed[0] == seed_needed:
@@ -24,13 +27,15 @@ def get_seed_repository(seed_needed):
 
 
 def seed_available():
+    """ Check if seed is available. """
     for seed in read_seed_repositories():
         yield seed[0], seed[2]
 
 
 def seed_developer_install(args, repository):
+    """ Install seed from git repository. """
     if not is_git_path(repository) and repository.startswith('/') and not is_git_repo(repository):
-        logging.error(f'{repository} is not a git repository')
+        logging.error('%s is not a git repository', repository)
         sys.exit(1)
     branch = args.branch if getattr(args, 'branch', None) else 'master'
     url = repository
@@ -39,7 +44,9 @@ def seed_developer_install(args, repository):
     Command.execute(['git', 'clone', f'{url}', args.seed], cwd=SEEDS_FOLDER)
     Command.execute(['git', 'checkout', f'{branch}'], cwd=path)
 
+
 def seed_user_install(args, repository):
+    """ Install seed from zip file. """
     repository = repository if repository.startswith('http') else 'https://' + repository
     repository = repository[:-4] if repository.endswith('.git') else repository
     branch = args.branch if getattr(args, 'branch', None) else 'master'
@@ -51,7 +58,9 @@ def seed_user_install(args, repository):
     os.unlink(os.path.join(SEEDS_FOLDER, f'datero_{args.seed}-{branch}.zip'))
     os.rename(os.path.join(SEEDS_FOLDER, f'datero_{args.seed}-{branch}'), os.path.join(SEEDS_FOLDER, args.seed))
 
+
 def seed_install(args, repository):
+    """ Install seed. """
     if args.developer:
         seed_developer_install(args, repository)
     else:
@@ -61,11 +70,14 @@ def seed_install(args, repository):
 
 
 def seed_remove(seed):
+    """ Remove seed. """
     path = os.path.join(SEEDS_FOLDER, seed)
     os.system(f'rm -rf {path}')
 
 
 def seed_install_dependencies(seed):
+    """ Install seed dependencies. """
+    # pylint: disable=protected-access
     def install(package):
         output = io.StringIO()
         sys.stdout = sys.stderr = output
@@ -80,6 +92,6 @@ def seed_install_dependencies(seed):
     if os.path.exists(os.path.join(SEEDS_FOLDER, seed, 'requirements.txt')):
         import pip
         import io
-        with open(os.path.join(SEEDS_FOLDER, seed, 'requirements.txt'), 'r') as requirements:
+        with open(os.path.join(SEEDS_FOLDER, seed, 'requirements.txt'), 'r', encoding='utf-8') as requirements:
             for requirement in requirements:
                 install(requirement)

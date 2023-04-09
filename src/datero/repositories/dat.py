@@ -27,6 +27,7 @@ class DatFile:
     suffixes = []
     date = None
     path: str = None
+    version: str = None
 
     def __init__(self, **kwargs) -> None:
         self.__dict__.update(kwargs)
@@ -144,7 +145,7 @@ class XMLDatFile(DatFile):
         extra_configs = getattr(find_system, 'extra_configs', None)
         if extra_configs:
             if 'empty_suffix' in extra_configs and not self.suffix:
-                    self.suffix = extra_configs['empty_suffix'].get(self.seed, None)
+                self.suffix = extra_configs['empty_suffix'].get(self.seed, None)
             if 'additional_suffix' in extra_configs:
                 self.suffix = os.path.join(self.suffix, extra_configs['additional_suffix'].get(self.seed, None))
             if 'if_suffix' in extra_configs:
@@ -179,6 +180,7 @@ class ClrMameProDatFile(DatFile):
         return data[start:end], data[end + 1:] if end < len(data) else None
 
     def read_block(self, data) -> dict:
+        """ Read a block of data from a ClrMame dat and parses it. """
         dictionary = {}
         for line in iter(data.splitlines()):
             line = line.strip()
@@ -197,8 +199,8 @@ class ClrMameProDatFile(DatFile):
                 else:
                     try:
                         key, value = shlex.split(line)
-                    except ValueError as e:
-                        raise ValueError(f'Error parsing line: {line} from: {self.file}') from e
+                    except ValueError as exc:
+                        raise ValueError(f'Error parsing line: {line} from: {self.file}') from exc
                     dictionary[key] = value
 
         return dictionary

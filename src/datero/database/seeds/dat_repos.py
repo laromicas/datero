@@ -1,7 +1,7 @@
 """
     Seed the database with repositories.
 """
-from datero.database.models import Repo
+from datero.database.models import Seed
 
 repositories = [
     {
@@ -37,5 +37,5 @@ repositories = [
 def _import_():
     """ Seed the database with repositories. """
     for repository in repositories:
-        repo = Repo(**repository)
+        repo = Seed(**repository)
         repo.save()

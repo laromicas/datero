@@ -36,6 +36,7 @@ class Process:
 
 class LoadDatFile(Process):
     """ Load a dat file. """
+    # pylint: disable=no-member
     class_name = None
     file = None
     seed = None
@@ -90,8 +91,7 @@ class Copy(Process):
     def process(self):
         """ Copy files. """
         from datero.database.models.datfile import Dat
-        if self.file:
-            origin = self.file
+        origin = self.file if self.file else None
         filename = os.path.basename(origin)
         self.destination = self.destination if self.destination else self.previous['path']
 

@@ -5,4 +5,8 @@ extension-pkg-whitelist=pydantic
 max-line-length=300
 
 [MESSAGES CONTROL]
-
+disable=
+    broad-exception-caught,
+    too-few-public-methods,
+    too-many-instance-attributes,
+    import-outside-toplevel,

@@ -22,7 +22,7 @@ def get_systems():
     """ Get systems from the Google Sheets. """
     if not config['UPDATE_URLS']['GoogleSheetUrl']:
         return []
-    result = requests.get(config['UPDATE_URLS']['GoogleSheetUrl'])
+    result = requests.get(config['UPDATE_URLS']['GoogleSheetUrl'], timeout=300)
     systems_result = result.json()['values']
     systems = []
     for i in range(1, len(systems_result)):
@@ -42,10 +42,11 @@ def get_systems():
     return systems
 
 
-def _import_():
+def import_dats():
     """ Seed the database with Systems. """
+    # pylint: disable=protected-access
     systems = get_systems()
-    with open(os.path.join(ROOT_FOLDER,'systems.json'), 'w') as file:
+    with open(os.path.join(ROOT_FOLDER,'systems.json'), 'w', encoding='utf-8') as file:
         json.dump(systems, file, indent=4)
     for system in systems:
         row = System(**system)

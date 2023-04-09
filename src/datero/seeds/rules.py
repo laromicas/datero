@@ -1,11 +1,12 @@
+""" Rules class. """
 import json
 import os
-from datero.commands import SEEDS_FOLDER
+from datero.configuration import SEEDS_FOLDER
 from datero.commands.seed_manager import seed_available
 
 
 class Rules:
-
+    """ Rules class. """
     _rules = []
 
     def __init__(self):
@@ -13,10 +14,11 @@ class Rules:
             rules_file = os.path.join(SEEDS_FOLDER, seed[0], 'rules.json')
             # yield rules_file
             if os.path.exists(rules_file):
-                with open(rules_file, 'r') as f:
-                    Rules._rules.extend(json.load(f))
+                with open(rules_file, 'r', encoding='utf-8') as file:
+                    Rules._rules.extend(json.load(file))
         self._rules.sort(key=lambda x: x['priority'], reverse=True)
 
     @property
     def rules(self):
+        """ Return the rules. """
         return self._rules

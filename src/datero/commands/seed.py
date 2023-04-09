@@ -1,13 +1,15 @@
-import logging
-from operator import le
+""" Fetch and Process Commands for Seeds """
 import os
 import json
 from pathlib import Path
 import re
-from . import Bcolors, Command, SEEDS_FOLDER, config, ROOT_FOLDER
+from datero.helpers import Bcolors
+from datero.configuration import SEEDS_FOLDER, config, ROOT_FOLDER
+from datero.helpers.executor import Command
 from datero.actions.processor import Processor
 
 class Seed:
+    """ Seed class """
     name = None
     path = None
     actions = {}
@@ -18,10 +20,11 @@ class Seed:
         self.__dict__.update(kwargs)
         self.path = os.path.join(SEEDS_FOLDER, self.name)
         if os.path.exists(os.path.join(self.path,'actions.json')):
-            with open(os.path.join(self.path,'actions.json'), 'r') as file:
+            with open(os.path.join(self.path,'actions.json'), 'r', encoding='utf-8') as file:
                 self.actions = json.load(file)
 
     def fetch(self):
+        """ Fetch seed """
         paths = {
             'SEED_NAME': self.name,
             'WORK_FOLDER': self.working_path,
@@ -35,7 +38,13 @@ class Seed:
         return result
 
 
-    def process_dats(self, filter=None):
+    def process_dats(self, fltr=None):
+        """ Process dats."""
+        def delete_line(line):
+            # pylint: disable=expression-not-assigned
+            [print('\b \b', end='') for x in range(0, len(line))]
+            print(' ' * (len(line)), end='')
+            print('\r', end='')
         dat_path = os.path.join(self.working_path, config.get('PATHS', 'TempPath'), self.name, 'dats')
         line = ''
         for path, actions in self.actions.items():
@@ -47,9 +56,9 @@ class Seed:
                         continue
                 ext = Path(file).suffix
 
-                if (ext in ('.dat', '.xml') or os.path.isdir(os.path.join(new_path,file))) and (not filter or filter in file):
+                if (ext in ('.dat', '.xml') or os.path.isdir(os.path.join(new_path,file))) and (not fltr or fltr in file):
                     if not config.getboolean('COMMAND', 'Quiet', fallback=False):
-                        self.delete_line(line)
+                        delete_line(line)
                         line = f'Processing {Bcolors.OKCYAN}{file}{Bcolors.ENDC}'
                         print(line, end=' ', flush=True)
                     procesor = Processor(seed=self.name, file=f'{new_path}/{file}', actions=actions)
@@ -58,7 +67,7 @@ class Seed:
                         output.append('Disabled')
                     if not config.getboolean('COMMAND', 'Quiet', fallback=False):
                         # [print('\b \b', end='') for x in range(0, len(line))]
-                        self.delete_line(line)
+                        delete_line(line)
                         line = f'Processed {Bcolors.OKCYAN}{file}{Bcolors.ENDC}'
                         print(line, end=' ', flush=True)
 
@@ -68,11 +77,5 @@ class Seed:
                     if output or config.getboolean('COMMAND', 'Verbose', fallback=False):
                         line = ''
                         print(line)
-        self.delete_line(line)
+        delete_line(line)
         print(f'{Bcolors.OKBLUE}Finished processing {Bcolors.OKGREEN}{self.name}{Bcolors.ENDC}')
-
-    def delete_line(self, line):
-        # print(f'\r{line}', end='')
-        [print('\b \b', end='') for x in range(0, len(line))]
-        print(' ' * (len(line)), end='')
-        print('\r', end='')
