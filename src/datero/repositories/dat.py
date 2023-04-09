@@ -3,6 +3,7 @@ Dat classes to parse different types of dat files.
 """
 # from abc import abstractmethod
 import os
+from pathlib import Path
 import shlex
 import xmltodict
 
@@ -237,6 +238,33 @@ class ZipMultiDatFile(DatFile):
     def load(self) -> None:
         """ Load the data from a ClrMamePro file. """
         self.games = []
+        self.header = self.get_header()
+
+        self.data = {
+            'datafile': {
+                'header':  self.header,
+                'game': self.games
+            }
+        }
+        self.name = self.header['name']
+        self.full_name = self.header['description']
+
+class DirMultiDatFile(DatFile):
+    """ Base class for dat files. """
+    def get_header(self) -> dict:
+        """ Get the header from the dat file. """
+        return { 'name': self.name, 'description': self.file }
+
+    def load(self) -> None:
+        """ Load the data from a ClrMamePro file. """
+        self.games = []
+        for file in os.listdir(self.file):
+            ext = Path(file).suffix
+            if ext in ['.xml', '.dat']:
+                self.games.append({ 'rom': { '@name': file } })
+
+        self.name = os.path.basename(self.file)
+
         self.header = self.get_header()
 
         self.data = {

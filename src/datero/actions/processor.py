@@ -4,6 +4,7 @@ Process actions.
 # pylint: disable=too-few-public-methods
 import os
 from pydoc import locate
+import shutil
 from datero.configuration import config
 
 class Processor:
@@ -69,7 +70,10 @@ class DeleteOld(Process):
         olddat = self.database.dict()
         result = None
         if 'new_file' in olddat and olddat['new_file'] and os.path.exists(olddat['new_file']):
-            os.unlink(olddat['new_file'])
+            if os.path.isdir(olddat['new_file']):
+                shutil.rmtree(olddat['new_file'])
+            else:
+                os.unlink(olddat['new_file'])
             result = "Deleted"
 
         self.output = self.previous
@@ -108,7 +112,10 @@ class Copy(Process):
                     elif config.getboolean('GENERAL', 'Overwrite', fallback=False):
                         result = "Overwritten"
                     self.previous['new_file'] = destination
-                    os.system(f'cp "{origin}" "{destination}"')
+                    if os.path.isdir(origin):
+                        os.system(f'cp -r "{origin}" "{destination}"')
+                    else:
+                        os.system(f'cp "{origin}" "{destination}"')
                 else:
                     result = "Exists"
             else:

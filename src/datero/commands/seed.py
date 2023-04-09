@@ -46,7 +46,8 @@ class Seed:
                     if ignore_regex.match(file):
                         continue
                 ext = Path(file).suffix
-                if (ext in ('.dat', '.xml')) and (not filter or filter in file):
+
+                if (ext in ('.dat', '.xml') or os.path.isdir(os.path.join(new_path,file))) and (not filter or filter in file):
                     if not config.getboolean('COMMAND', 'Quiet', fallback=False):
                         self.delete_line(line)
                         line = f'Processing {Bcolors.OKCYAN}{file}{Bcolors.ENDC}'
