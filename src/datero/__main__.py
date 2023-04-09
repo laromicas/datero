@@ -244,6 +244,10 @@ def command_seed(args):
     """Commands with the seed (must be installed)"""
     if args.seed == 'all':
         for seed in installed_seeds():
+            if config['PROCESS'].get('SeedIgnoreRegEx'):
+                ignore_regex = re.compile(config['PROCESS']['SeedIgnoreRegEx'])
+                if ignore_regex.match(seed[0]):
+                    continue
             args.seed = seed[0]
             command_seed(args)
         sys.exit(0)
@@ -341,16 +345,6 @@ def command_doctor(args):
         seeds = installed_seeds()
     for seed in seeds:
         check_dependencies(seed[0], args.repair)
-        # print(f'* {Bcolors.OKCYAN}{seed[0]}{Bcolors.ENDC}')
-        # check_installed_packages(seed[0], installed_pkgs)
-        # check_main_executables(seed[0])
-        # if args.repair:
-        #     print('Trying to repair...')
-        #     seed = Seed(name=seed[0])
-        #     seed.fetch()
-        #     seed.process_dats()
-        #     print('  Repair done')
-
 
 def main():
     """Main function"""

@@ -456,6 +456,34 @@
         "system_type": "Computer"
     },
     {
+        "company": "Web",
+        "system": "Humble Play",
+        "override": {
+            "system": "PC and Compatibles",
+            "company": "IBM"
+        },
+        "extra_configs": {
+            "empty_suffix": {
+                "nointro": "Digital/Web/Humble Play"
+            }
+        },
+        "system_type": "Computer"
+    },
+    {
+        "company": "Various",
+        "system": "itch.io",
+        "override": {
+            "system": "PC and Compatibles",
+            "company": "IBM"
+        },
+        "extra_configs": {
+            "empty_suffix": {
+                "nointro": "Digital/itch.io"
+            }
+        },
+        "system_type": "Computer"
+    },
+    {
         "company": "Incredible Technologies",
         "system": "Eagle",
         "system_type": "Arcade"
@@ -859,6 +887,24 @@
         "system_type": "Console"
     },
     {
+        "company": null,
+        "system": "NintendoSDK Firmware for NX",
+        "override": {
+            "system": "NintendoSDK Firmware for NX",
+            "company": "Nintendo",
+            "modifier": "Source Code"
+        },
+        "system_type": "Source Code"
+    },
+    {
+        "company": "Nintendo",
+        "system": "SDKs",
+        "override": {
+            "modifier": "Source Code"
+        },
+        "system_type": "Source Code"
+    },
+    {
         "company": "Nintendo",
         "system": "GameCube",
         "extra_configs": {
@@ -1027,6 +1073,11 @@
     {
         "company": "Nintendo",
         "system": "Pokemon Mini",
+        "system_type": "Console"
+    },
+    {
+        "company": "Nintendo",
+        "system": "Nintendo Switch",
         "system_type": "Console"
     },
     {
