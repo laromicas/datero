@@ -94,6 +94,7 @@ TODO (without priority)
 -  Better structure for the downloaders *
 -  Better command line support
 -  Migrate to python modules
+-  Manually Deduplicate dats from command line (easy to implement)
 
 
 *(\*) Done but to be improved*
