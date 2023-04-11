@@ -78,30 +78,23 @@ TODO (without priority)
 -----------------------
 
 -  Database initialization !!! (priority)
-
-    -  Command to populate DB with initial data
-
 -  Make update rules write to database only when finished
 -  Better rules update process
 -  Logging
--  Option to disable dat seeds
 -  Tests
 -  More dat repositories
--  Show updated
 -  Mega.nz download support (https://pypi.org/project/mega.py/)
 -  Zippyshare download support (https://pypi.org/project/zippyshare-downloader/)
 -  Zippyshare download support (https://pypi.org/project/pyOneFichierClient/)
--  Move helpers out from commands
 -  Configurable folder structure (instead of emulator-focused structure use dat-repositories or viceversa)
 
    -  Maybe with a builder, to avoid the need to change the code
 
--  Commenting datero.ini
 -  Modular design for repositories (done for seeds, repositores missing)
--  Don't update when same filename *
--  Option to disable individual dats *
 -  Better structure for the downloaders *
 -  Better command line support
+-  Migrate to python modules
+
 
 *(\*) Done but to be improved*
 
