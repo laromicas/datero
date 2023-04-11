@@ -108,25 +108,22 @@ TODO (without priority)
 *(\*\*) Did it Yay!!!*
 
 
-USEFUL COMMANDS
+USEFUL DEVELOPMENT COMMANDS
 ---------------
 
 Find folders with more than one dat file:
-``
-find . -type f -iname '*.dat' -printf '%h\n'|sort|uniq -cd
-``
+.. code-block:: bash
+   find . -type f -iname '*.dat' -printf '%h\n'|sort|uniq -cd
+
 
 Find and delete empty folders:
-``
-find . -type d -empty -print -delete
-``
+.. code-block:: bash
+   find . -type d -empty -print -delete
+
 Pylint
-``
-pylint src --errors-only
-pylint src --disable=all --enable=missing-function-docstring
-
-``
-
+.. code-block:: bash
+   pylint src --errors-only
+   pylint src --disable=all --enable=missing-function-docstring
 
 
 WISHLIST (without priority)
