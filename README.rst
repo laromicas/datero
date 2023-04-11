@@ -130,7 +130,7 @@ WISHLIST (without priority)
    -  Downloading from S3
 -  Auto-Import MIA Lists (for redump)
    -  Add [MIA] to dat roms
--  Deduplicate dats
+-  Deduplicate dats (**)
 -  Remove MIA from dats
 -  .cue Generator
 
