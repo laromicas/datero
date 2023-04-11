@@ -120,6 +120,12 @@ Find and delete empty folders:
 ``
 find . -type d -empty -print -delete
 ``
+Pylint
+``
+pylint src --errors-only
+pylint src --disable=all --enable=missing-function-docstring
+
+``
 
 
 

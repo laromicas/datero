@@ -65,8 +65,8 @@ def parse_args() -> argparse.Namespace:
     group_dat= parser_dat.add_mutually_exclusive_group(required=True)
 
     group_dat.add_argument('-d', '--dat-name', help='Select dat to update/check, must be in format "seed:name"')
-    group_dat.add_argument('-s', '--search', help='Select dats based on filter, they are "<field><operator><value>;...", valid operators are: =, !=, and ~=')
-    parser_dat.add_argument('-ss', '--set-status', help='Select all dats', choices=['enabled', 'disabled'])
+    group_dat.add_argument('-f', '--find', help='Select dats based on filter, they are "<field><operator><value>;...", valid operators are: =, !=, and ~=')
+    parser_dat.add_argument('-s', '--set', help='Manually set variable, must be in format "variable=value"')
     parser_dat.add_argument('-on', '--only-names', action='store_true', help='Only show names')
 
     parser_dat.set_defaults(func=command_dat)
@@ -169,10 +169,15 @@ def command_dat(args):
             if not result:
                 print(f'{Bcolors.FAIL}Dat not found{Bcolors.ENDC}')
                 sys.exit(1)
-            if args.set_status:
-                table.update({'status': args.set_status}, doc_ids=[result.doc_id])
+            if args.set:
+                key, value = args.set.split('=') if '=' in args.set else (args.set, True)
+                if value.isdigit():
+                    value = int(value)
+                if value.lower() == 'true':
+                    value = True
+                table.update({key: value}, doc_ids=[result.doc_id])
                 table.storage.flush()
-                print(f'{Bcolors.OKGREEN}Dat {Bcolors.OKCYAN}{seed}:{name}{Bcolors.OKGREEN} status set to {Bcolors.OKBLUE}{args.set_status}{Bcolors.ENDC}')
+                print(f'{Bcolors.OKGREEN}Dat {Bcolors.OKCYAN}{seed}:{name}{Bcolors.OKGREEN} {key} set to {Bcolors.OKBLUE}{value}{Bcolors.ENDC}')
                 sys.exit(0)
             if result:
                 output.append({
@@ -194,10 +199,10 @@ def command_dat_import(_) -> None:
         ignore_regex = re.compile(config['IMPORT']['IgnoreRegEx'])
         dats = [ dat for dat in dats if not ignore_regex.match(dat) ]
 
-    fromhere = '/mnt/d/ROMVault/DatRoot/Consoles/Nintendo/Nintendo Entertainment System/NRS/NES 2.0 (NRS) B (1.20211225.R6M5) Headered.dat'
+    fromhere = ''
     found = False
     for dat_name in dats:
-        if dat_name == fromhere:
+        if dat_name == fromhere or fromhere == '':
             found = True
         if not found:
             continue
@@ -272,7 +277,7 @@ def command_seed(args) -> None:
         print('=======================')
         print(f'{Bcolors.OKCYAN}Processing seed {Bcolors.OKGREEN}{args.seed}{Bcolors.ENDC}')
         print('=======================')
-        if seed.process_dats(filter=getattr(args, 'filter', None)):
+        if seed.process_dats(fltr=getattr(args, 'filter', None)):
             print(f'Errors processing {Bcolors.FAIL}{args.seed}{Bcolors.ENDC}')
             print('Please enable logs for more information or use -v parameter')
             command_doctor(args)

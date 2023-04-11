@@ -105,7 +105,7 @@ class XMLDatFile(DatFile):
     def load(self) -> None:
         """ Load the data from a XML file. """
         with open(self.file, encoding='utf-8') as fild:
-            self.data = xmltodict.parse(fild.read(), process_namespaces=True)
+            self.data = xmltodict.parse(fild.read())
             self.header = self.data['datafile']['header']
             self.name = self.header['name'] if 'name' in self.header else None
             self.full_name = self.header['description'] if 'description' in self.header else None
@@ -114,15 +114,63 @@ class XMLDatFile(DatFile):
             self.url = self.header['url'] if 'url' in self.header and self.header['url'] and 'insert' not in self.header['url'] else None
             self.author = self.header['author'] if 'author' in self.header and self.header['author'] and 'insert' not in self.header['author'] else None
             self.email = self.header['email'] if 'email' in self.header and self.header['email'] and 'insert' not in self.header['email'] else None
+            self.detect_game_key()
+
+    def save(self) -> None:
+        """ Save the data to a XML file. """
+        with open(self.file, 'w') as fild:
+            fild.write(xmltodict.unparse(self.data, pretty=True))
+
+    def detect_game_key(self) -> str:
+        """ Get the game key. """
+        for key in self.data['datafile']:
+            if key != 'header' and not key.startswith('@'):
+                self.game_key = key
+                break
+
+    def parse_rom(self, rom: dict) -> dict:
+        """ Standarize the rom. """
+        parsed_rom = {}
+        for key in rom:
+            if key.startswith('@'):
+                parsed_rom[key[1:]] = rom[key]
+            else:
+                parsed_rom[key] = rom[key]
+        return parsed_rom
+
+    def add_rom(self, rom: dict) -> None:
+        """ Add a rom to the dat file. """
+        self.shas.add_rom(self.parse_rom(rom))
 
     def get_rom_shas(self) -> None:
         """ Get the shas for the roms and creates an index. """
+        self.shas = HashesIndex()
+
         for game in self.data['datafile'][self.game_key]:
             if not isinstance(game['rom'], list):
-                self.shas.add_rom(game['rom'])
+                self.add_rom(game['rom'])
             else:
                 for rom in game['rom']:
-                    self.shas.add_rom(rom)
+                    self.add_rom(rom)
+
+    def merge_with(self, parent: DatFile) -> None:
+        """ Merge the dat file with the parent. """
+        parent.get_rom_shas()
+        for game in self.data['datafile'][self.game_key]:
+            if not isinstance(game['rom'], list):
+                if parent.shas.has_rom(self.parse_rom(game['rom'])):
+                    del game['rom']
+            else:
+                new_roms = []
+                for rom in game['rom']:
+                    if not parent.shas.has_rom(self.parse_rom(rom)):
+                        new_roms.append(rom)
+                game['rom'] = new_roms
+        new_games = []
+        for game in self.data['datafile'][self.game_key]:
+            if 'rom' in game:
+                new_games.append(game)
+        self.data['datafile'][self.game_key] = new_games
 
     def get_name(self) -> str:
         """ Get the name of the dat file. """
@@ -277,3 +325,48 @@ class DirMultiDatFile(DatFile):
         }
         self.name = self.header['name']
         self.full_name = self.header['description']
+
+
+class HashesIndex:
+    """ Index of hashes. """
+    hashes = ['sha256', 'sha1', 'md5', 'crc']
+    sha256 = {}
+    sha1 = {}
+    md5 = {}
+    crc = {}
+    sizes = {}
+
+    def add_rom(self, rom):
+        """ Add a rom to the index. """
+        for hash in self.hashes:
+            if hash in rom:
+                if hash not in self.__dict__:
+                    self.__dict__[hash] = {}
+                self.__dict__[hash][rom[hash]] = rom
+
+    def has_rom(self, rom, hash=None):
+        """ Check if a rom exists in the index. """
+        if hash:
+            return hash in self.__dict__ \
+                and rom[hash] in self.__dict__[hash] \
+                and rom['size'] == self.__dict__[hash][rom[hash]]['size']
+        return any((hash in self.__dict__ \
+                    and rom[hash] in self.__dict__[hash] \
+                    and rom['size'] == self.__dict__[hash][rom[hash]]['size']) \
+                    for hash in self.hashes)
+
+    def get_sha256s(self):
+        """ Get the sha256s. """
+        return self.sha256.keys()
+
+    def get_sha1s(self):
+        """ Get the sha1s. """
+        return self.sha1.keys()
+
+    def get_md5s(self):
+        """ Get the md5s. """
+        return self.md5.keys()
+
+    def get_crcs(self):
+        """ Get the crcs. """
+        return self.crc.keys()
