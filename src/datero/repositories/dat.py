@@ -118,7 +118,7 @@ class XMLDatFile(DatFile):
 
     def save(self) -> None:
         """ Save the data to a XML file. """
-        with open(self.file, 'w') as fild:
+        with open(self.file, 'w', encoding='utf_8') as fild:
             fild.write(xmltodict.unparse(self.data, pretty=True))
 
     def detect_game_key(self) -> str:
