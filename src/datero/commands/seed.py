@@ -1,7 +1,6 @@
 """ Fetch and Process Commands for Seeds """
 import os
 import json
-from pathlib import Path
 import re
 from datero.helpers import Bcolors
 from datero.configuration import SEEDS_FOLDER, config, ROOT_FOLDER
@@ -14,7 +13,7 @@ class Seed:
     path = None
     actions = {}
     working_path = os.path.abspath(os.path.join(os.getcwd(), config.get('PATHS', 'WorkingPath')))
-    status_to_show = ['Updated', 'Created', 'Error', 'Disabled']
+    status_to_show = ['Updated', 'Created', 'Error', 'Disabled', 'Deduped']
 
     def __init__(self, **kwargs) -> None:
         self.__dict__.update(kwargs)
@@ -54,28 +53,31 @@ class Seed:
                     ignore_regex = re.compile(config['PROCESS']['DatIgnoreRegEx'])
                     if ignore_regex.match(file):
                         continue
-                ext = Path(file).suffix
 
-                if (ext in ('.dat', '.xml') or os.path.isdir(os.path.join(new_path,file))) and (not fltr or fltr in file):
-                    if not config.getboolean('COMMAND', 'Quiet', fallback=False):
-                        delete_line(line)
-                        line = f'Processing {Bcolors.OKCYAN}{file}{Bcolors.ENDC}'
-                        print(line, end=' ', flush=True)
-                    procesor = Processor(seed=self.name, file=f'{new_path}/{file}', actions=actions)
-                    output = [x for x in procesor.process() if (x in self.status_to_show or Command.verbose)]
-                    if 'Deleted' in output and 'Ignored' in output:
-                        output.append('Disabled')
-                    if not config.getboolean('COMMAND', 'Quiet', fallback=False):
-                        # [print('\b \b', end='') for x in range(0, len(line))]
-                        delete_line(line)
-                        line = f'Processed {Bcolors.OKCYAN}{file}{Bcolors.ENDC}'
-                        print(line, end=' ', flush=True)
+                if (not file.endswith(('.dat', '.xml')) \
+                    and not os.path.isdir(os.path.join(new_path,file))) \
+                    or (fltr and fltr not in file):
+                    continue
 
-                    if output and not config.getboolean('COMMAND', 'Quiet', fallback=False):
-                        line += str(output)+' '
-                        print(output, end=' ', flush=True)
-                    if output or config.getboolean('COMMAND', 'Verbose', fallback=False):
-                        line = ''
-                        print(line)
+                if not config.getboolean('COMMAND', 'Quiet', fallback=False):
+                    delete_line(line)
+                    line = f'Processing {Bcolors.OKCYAN}{file}{Bcolors.ENDC}'
+                    print(line, end=' ', flush=True)
+                procesor = Processor(seed=self.name, file=f'{new_path}/{file}', actions=actions)
+                output = [x for x in procesor.process() if (x in self.status_to_show or Command.verbose)]
+                if 'Deleted' in output and 'Ignored' in output:
+                    output.append('Disabled')
+                if not config.getboolean('COMMAND', 'Quiet', fallback=False):
+                    # [print('\b \b', end='') for x in range(0, len(line))]
+                    delete_line(line)
+                    line = f'Processed {Bcolors.OKCYAN}{file}{Bcolors.ENDC}'
+                    print(line, end=' ', flush=True)
+
+                if output and not config.getboolean('COMMAND', 'Quiet', fallback=False):
+                    line += str(output)+' '
+                    print(output, end=' ', flush=True)
+                if output or config.getboolean('COMMAND', 'Verbose', fallback=False):
+                    line = ''
+                    print(line)
         delete_line(line)
         print(f'{Bcolors.OKBLUE}Finished processing {Bcolors.OKGREEN}{self.name}{Bcolors.ENDC}')

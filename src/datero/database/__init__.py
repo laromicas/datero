@@ -32,6 +32,6 @@ class JSONStorageWithBackup(JSONStorage):
         os.system(f"cp {self.path} {self.path}.bak")
 
 
-DB = TinyDB(DATABASE_URL, storage=CachingMiddleware(JSONStorageWithBackup))
+DB = TinyDB(DATABASE_URL, storage=CachingMiddleware(JSONStorageWithBackup), indent=4)
 
 # DB = TinyDB(DATABASE_URL, storage=JSONStorageWithBackup, indent=4)

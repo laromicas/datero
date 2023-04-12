@@ -6,6 +6,8 @@ import os
 from pydoc import locate
 import shutil
 from datero.configuration import config
+from datero.repositories.dedupe import Dedupe
+from datero.database.models.datfile import Dat
 
 class Processor:
     """ Process actions. """
@@ -138,7 +140,33 @@ class SaveToDatabase(Process):
         self.database = Dat(**self.previous)
         self.database.save()
         self.database.close()
+        self.output = self.previous
         return "Saved"
+
+
+class Deduplicate(Process):
+    """ Save process to database. """
+    parent_db = None
+    child_db = None
+
+    def get_dat(self, name, seed):
+        """ Get dat file. """
+        from datero.database.models.datfile import Dat
+        dat = Dat(name=name, seed=seed)
+        dat.load()
+        return dat
+
+    def process(self):
+        """ Save process to database. """
+        child_db = Dat(**self.previous)
+        child_db.load()
+        if not getattr(child_db, 'merge', None) or not getattr(child_db, 'parent', None):
+            return "Skipped"
+        merged = Dedupe(child_db)
+        merged.dedupe()
+        merged.save()
+        self.output = self.previous
+        return "Deduped"
 
 
 if __name__ == '__main__':

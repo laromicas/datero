@@ -78,49 +78,46 @@ TODO (without priority)
 -----------------------
 
 -  Database initialization !!! (priority)
-
-    -  Command to populate DB with initial data
-
 -  Make update rules write to database only when finished
 -  Better rules update process
 -  Logging
--  Option to disable dat seeds
 -  Tests
 -  More dat repositories
--  Show updated
 -  Mega.nz download support (https://pypi.org/project/mega.py/)
 -  Zippyshare download support (https://pypi.org/project/zippyshare-downloader/)
 -  Zippyshare download support (https://pypi.org/project/pyOneFichierClient/)
--  Move helpers out from commands
 -  Configurable folder structure (instead of emulator-focused structure use dat-repositories or viceversa)
 
    -  Maybe with a builder, to avoid the need to change the code
 
--  Commenting datero.ini
 -  Modular design for repositories (done for seeds, repositores missing)
--  Don't update when same filename *
--  Option to disable individual dats *
 -  Better structure for the downloaders *
 -  Better command line support
+-  Migrate to python modules
+-  Manually Deduplicate dats from command line (easy to implement)
+
 
 *(\*) Done but to be improved*
 
 *(\*\*) Did it Yay!!!*
 
 
-USEFUL COMMANDS
+USEFUL DEVELOPMENT COMMANDS
 ---------------
 
 Find folders with more than one dat file:
-``
-find . -type f -iname '*.dat' -printf '%h\n'|sort|uniq -cd
-``
+.. code-block:: bash
+   find . -type f -iname '*.dat' -printf '%h\n'|sort|uniq -cd
+
 
 Find and delete empty folders:
-``
-find . -type d -empty -print -delete
-``
+.. code-block:: bash
+   find . -type d -empty -print -delete
 
+Pylint
+.. code-block:: bash
+   pylint src --errors-only
+   pylint src --disable=all --enable=missing-function-docstring
 
 
 WISHLIST (without priority)
@@ -134,7 +131,7 @@ WISHLIST (without priority)
    -  Downloading from S3
 -  Auto-Import MIA Lists (for redump)
    -  Add [MIA] to dat roms
--  Deduplicate dats
+-  Deduplicate dats (**)
 -  Remove MIA from dats
 -  .cue Generator
 
