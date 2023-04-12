@@ -1,11 +1,8 @@
-import os
-from pydoc import locate
+import logging
 from datero.database.models.datfile import Dat
 from datero.repositories.dat import DatFile, XMLDatFile, ClrMameProDatFile
-from datero.seeds.rules import Rules
-from datero.seeds.unknown_seed import detect_seed
 
-class Merge:
+class Dedupe:
     """ Merge two dat files. """
 
     child = {}
@@ -24,7 +21,7 @@ class Merge:
                     obj['db'] = Dat(name=name, seed=seed)
                     obj['db'].load()
                     var = obj['db']
-                elif var.endswith('.dat') or var.endswith('.xml'):
+                elif var.endswith(('.dat', '.xml')):
                     obj['file'] = var
                 else:
                     raise Exception("Invalid dat file")
@@ -58,7 +55,10 @@ class Merge:
 
     def dedupe(self):
         self.child['dat'].merge_with(self.parent['dat'])
+        logging.info("Deduped %i roms", len(self.child['dat'].merged_roms))
         return self.child['dat']
 
-    def save(self):
+    def save(self, file=None):
+        if file:
+            self.child['dat'].file = file
         self.child['dat'].save()

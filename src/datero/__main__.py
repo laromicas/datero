@@ -8,6 +8,7 @@ from pydoc import locate
 import re
 import sys
 import argparse
+from venv import logger
 from tabulate import tabulate
 from datero.configuration.logger import enable_logging, set_verbosity
 from datero.database.models.datfile import Dat
@@ -20,6 +21,7 @@ from datero.commands.list import installed_seeds, seed_description
 from datero.commands.doctor import check_dependencies, check_main_executables, check_seed
 from datero.commands.seed_manager import seed_available, get_seed_repository, seed_install, seed_remove
 from datero.commands.seed import Seed
+from datero.repositories.dedupe import Dedupe
 from datero.seeds.rules import Rules
 from datero.seeds.unknown_seed import detect_seed
 
@@ -91,7 +93,15 @@ def parse_args() -> argparse.Namespace:
     parser_remove.set_defaults(func=command_seed_remove)
 
     parser_import = subparser.add_parser('import', help='Import dats from existing romvault')
-    parser_import.set_defaults(func=command_dat_import)
+    parser_import.set_defaults(func=command_import)
+
+    parser_deduper = subparser.add_parser('deduper', help='Deduplicate dats, removes duplicates from input dat existing in parent dat')
+    parser_deduper.add_argument('-i', '--input', required=True, help='Input dat file e.g. "redump:psx_child" or "/mnt/roms/redump_psx_child.dat"')
+    parser_deduper.add_argument('-p', '--parent', default=None, help='Parent dat file e.g. "redump:psx" or "/mnt/roms/redump_psx.dat" if not set, parent is taken from input dat with prescanned dats')
+    parser_deduper.add_argument('-o', '--output', default=None, help='If different from input.dat, must be a file path e.g. "/mnt/roms/redump_psx_child_deduped.dat"')
+    parser_deduper.add_argument('-dr', '--dry-run', action='store_true', help='Do not write output file, just show actions')
+
+    parser_deduper.set_defaults(func=command_deduper)
 
 
     # Seed commands
@@ -134,6 +144,50 @@ def initial_setup(args) -> None:
         config['COMMAND']['Verbose'] = 'true'
     if getattr(args, 'logging', False):
         enable_logging()
+
+
+def command_deduper(args) -> None:
+    """ Deduplicate dats, removes duplicates from input dat existing in parent dat """
+    if not args.parent and args.input.endswith(('.dat', '.xml')):
+        print('Parent dat is required when input is a dat file')
+        sys.exit(1)
+    if args.dry_run:
+        logger.setLevel(logging.DEBUG)
+    merged = Dedupe(args.input, args.parent)
+    merged.dedupe()
+    if args.output and not args.dry_run:
+        merged.save(args.output)
+    elif not args.dry_run:
+        merged.save(args.input)
+    print(f'{Bcolors.OKBLUE}File saved to {args.output if args.output else args.input}{Bcolors.ENDC}')
+
+def command_import(_) -> None:
+    """ Make changes in dat config """
+    dat_root_path = config['PATHS']['DatPath']
+    rules = Rules().rules
+
+    dats = { str(x):None for x in Path(dat_root_path).rglob("*.[dD][aA][tT]") }
+    if config['IMPORT'].get('IgnoreRegEx'):
+        ignore_regex = re.compile(config['IMPORT']['IgnoreRegEx'])
+        dats = [ dat for dat in dats if not ignore_regex.match(dat) ]
+
+    fromhere = ''
+    found = False
+    for dat_name in dats:
+        if dat_name == fromhere or fromhere == '':
+            found = True
+        if not found:
+            continue
+        print(f'{dat_name} - ', end='')
+        seed, class_detected = detect_seed(dat_name, rules)
+        print(f'{seed} - {class_detected}')
+        if class_detected:
+            class_name = locate(class_detected)
+            dat = class_name(file=dat_name)
+            dat.load()
+            database = Dat(seed=seed, new_file=dat_name, **dat.dict())
+            database.save()
+            database.close()
 
 
 def command_dat(args):
@@ -187,35 +241,6 @@ def command_dat(args):
                 })
             print(tabulate(output, headers='keys', tablefmt='psql'))
             sys.exit(0)
-
-
-def command_dat_import(_) -> None:
-    """ Make changes in dat config """
-    dat_root_path = config['PATHS']['DatPath']
-    rules = Rules().rules
-
-    dats = { str(x):None for x in Path(dat_root_path).rglob("*.[dD][aA][tT]") }
-    if config['IMPORT'].get('IgnoreRegEx'):
-        ignore_regex = re.compile(config['IMPORT']['IgnoreRegEx'])
-        dats = [ dat for dat in dats if not ignore_regex.match(dat) ]
-
-    fromhere = ''
-    found = False
-    for dat_name in dats:
-        if dat_name == fromhere or fromhere == '':
-            found = True
-        if not found:
-            continue
-        print(f'{dat_name} - ', end='')
-        seed, class_detected = detect_seed(dat_name, rules)
-        print(f'{seed} - {class_detected}')
-        if class_detected:
-            class_name = locate(class_detected)
-            dat = class_name(file=dat_name)
-            dat.load()
-            database = Dat(seed=seed, new_file=dat_name, **dat.dict())
-            database.save()
-            database.close()
 
 
 def command_seed_remove(args) -> None:

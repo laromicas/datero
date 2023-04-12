@@ -1,7 +1,6 @@
 """ Fetch and Process Commands for Seeds """
 import os
 import json
-from pathlib import Path
 import re
 from datero.helpers import Bcolors
 from datero.configuration import SEEDS_FOLDER, config, ROOT_FOLDER
@@ -54,9 +53,8 @@ class Seed:
                     ignore_regex = re.compile(config['PROCESS']['DatIgnoreRegEx'])
                     if ignore_regex.match(file):
                         continue
-                ext = Path(file).suffix
 
-                if (not ext in ('.dat', '.xml') \
+                if (not file.endswith(('.dat', '.xml')) \
                     and not os.path.isdir(os.path.join(new_path,file))) \
                     or (fltr and fltr not in file):
                     continue

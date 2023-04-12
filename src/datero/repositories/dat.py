@@ -3,7 +3,6 @@ Dat classes to parse different types of dat files.
 """
 # from abc import abstractmethod
 import os
-from pathlib import Path
 import shlex
 import xmltodict
 
@@ -101,6 +100,7 @@ class XMLDatFile(DatFile):
     shas = None
     game_key = 'game'
     header = None
+    merged_roms = []
 
     def load(self) -> None:
         """ Load the data from a XML file. """
@@ -118,7 +118,7 @@ class XMLDatFile(DatFile):
 
     def save(self) -> None:
         """ Save the data to a XML file. """
-        with open(self.file, 'w', encoding='utf_8') as fild:
+        with open(self.file, 'w', encoding='utf-8') as fild:
             fild.write(xmltodict.unparse(self.data, pretty=True))
 
     def detect_game_key(self) -> str:
@@ -147,6 +147,8 @@ class XMLDatFile(DatFile):
         self.shas = HashesIndex()
 
         for game in self.data['datafile'][self.game_key]:
+            if not 'rom' in game:
+                continue
             if not isinstance(game['rom'], list):
                 self.add_rom(game['rom'])
             else:
@@ -159,12 +161,15 @@ class XMLDatFile(DatFile):
         for game in self.data['datafile'][self.game_key]:
             if not isinstance(game['rom'], list):
                 if parent.shas.has_rom(self.parse_rom(game['rom'])):
+                    self.merged_roms.append(self.parse_rom(game['rom']))
                     del game['rom']
             else:
                 new_roms = []
                 for rom in game['rom']:
                     if not parent.shas.has_rom(self.parse_rom(rom)):
                         new_roms.append(rom)
+                    else:
+                        self.merged_roms.append(self.parse_rom(rom))
                 game['rom'] = new_roms
         new_games = []
         for game in self.data['datafile'][self.game_key]:
@@ -309,8 +314,7 @@ class DirMultiDatFile(DatFile):
         """ Load the data from a ClrMamePro file. """
         self.games = []
         for file in os.listdir(self.file):
-            ext = Path(file).suffix
-            if ext in ['.xml', '.dat']:
+            if file.endswith(('.xml', '.dat')):
                 self.games.append({ 'rom': { '@name': file } })
 
         self.name = os.path.basename(self.file)
@@ -347,10 +351,10 @@ class HashesIndex:
     def has_rom(self, rom, hash=None):
         """ Check if a rom exists in the index. """
         if hash:
-            return hash in self.__dict__ \
+            return hash in rom and hash in self.__dict__ \
                 and rom[hash] in self.__dict__[hash] \
                 and rom['size'] == self.__dict__[hash][rom[hash]]['size']
-        return any((hash in self.__dict__ \
+        return any((hash in rom and hash in self.__dict__ \
                     and rom[hash] in self.__dict__[hash] \
                     and rom['size'] == self.__dict__[hash][rom[hash]]['size']) \
                     for hash in self.hashes)

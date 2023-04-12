@@ -6,9 +6,7 @@ import os
 from pydoc import locate
 import shutil
 from datero.configuration import config
-from datero.repositories.deduplicate import Merge
-from datero.seeds.rules import Rules
-from datero.seeds.unknown_seed import detect_seed
+from datero.repositories.dedupe import Dedupe
 from datero.database.models.datfile import Dat
 
 class Processor:
@@ -164,7 +162,7 @@ class Deduplicate(Process):
         child_db.load()
         if not getattr(child_db, 'merge', None) or not getattr(child_db, 'parent', None):
             return "Skipped"
-        merged = Merge(child_db)
+        merged = Dedupe(child_db)
         merged.dedupe()
         merged.save()
         self.output = self.previous
