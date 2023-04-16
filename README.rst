@@ -23,7 +23,7 @@ Use pip or download a release and install it (recommended to use a virtual envir
 .. code-block:: bash
 
    pip install datero
-   pip install datero-0.3.0-py3-none-any.whl
+
 
 Usage
 -----

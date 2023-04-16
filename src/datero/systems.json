@@ -31,6 +31,15 @@
         "system_type": "Computer"
     },
     {
+        "company": null,
+        "system": "Merit Megatouch",
+        "override": {
+            "company": "Merit",
+            "system": "Megatouch"
+        },
+        "system_type": "Arcade"
+    },
+    {
         "company": "Analogue",
         "system": "Analogue Pocket",
         "system_type": "Console"
