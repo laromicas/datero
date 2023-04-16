@@ -89,8 +89,8 @@ OTW.
 -   Migrate to python modules
 -   Manually Deduplicate dats from command line (easy to implement)
 
-*(\*) Done but to be improved*
-*(\*\*) Did it Yay!!!*
+*(*) Done but to be improved*
+*(**) Did it Yay!!!*
 
 ## USEFUL DEVELOPMENT COMMANDS
 
@@ -120,7 +120,7 @@ $ pylint src --disable=all --enable=missing-function-docstring
 -   Remove MIA from dats
 -   .cue Generator
 
-*(\*\*) Did it Yay!!!*
+*(**) Did it Yay!!!*
 
 ## Contributing
 
