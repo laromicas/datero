@@ -64,10 +64,12 @@ def parse_args() -> argparse.Namespace:
 
     parser_dat = subparser.add_parser('dat', help='Make changes in dat config')
     parser_dat.add_argument('command', nargs='?', help='Command to execute')
-    group_dat= parser_dat.add_mutually_exclusive_group(required=True)
 
+    group_dat= parser_dat.add_mutually_exclusive_group(required=True)
     group_dat.add_argument('-d', '--dat-name', help='Select dat to update/check, must be in format "seed:name"')
     group_dat.add_argument('-f', '--find', help='Select dats based on filter, they are "<field><operator><value>;...", valid operators are: =, !=, and ~=')
+    group_dat.add_argument('-a', '--all', help='Show all dats', action='store_true')
+
     parser_dat.add_argument('-s', '--set', help='Manually set variable, must be in format "variable=value"')
     parser_dat.add_argument('-on', '--only-names', action='store_true', help='Only show names')
 
@@ -241,6 +243,39 @@ def command_dat(args):
                 })
             print(tabulate(output, headers='keys', tablefmt='psql'))
             sys.exit(0)
+    elif args.all:
+        # Show all dats
+        for dat in table.all():
+            output.append({
+                'seed': dat['seed'],
+                'name': dat['name'],
+                'status': dat['status'] if 'status' in dat else 'enabled',
+            })
+        if getattr(args, 'only_names', False):
+            for dat in output:
+                print(f"{dat['seed']}:{dat['name']}")
+            sys.exit()
+        print(tabulate(output, headers='keys', tablefmt='psql'))
+        sys.exit(0)
+    elif args.find:
+        # Find dats TODO: finish
+        print(f'Showing results for filter: {Bcolors.OKCYAN}{args.find}{Bcolors.ENDC}')
+        print('--------------------------------------------------------------')
+        name, value = args.find.split('=')
+        from tinydb import where
+        result = table.search(where(name) == value)
+        for dat in result:
+            output.append({
+                'seed': dat['seed'],
+                'name': dat['name'],
+                'status': dat['status'] if 'status' in dat else 'enabled',
+            })
+        if getattr(args, 'only_names', False):
+            for dat in output:
+                print(f"{dat['seed']}:{dat['name']}")
+            sys.exit()
+        print(tabulate(output, headers='keys', tablefmt='psql'))
+        sys.exit(0)
 
 
 def command_seed_remove(args) -> None:
