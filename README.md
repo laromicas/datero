@@ -6,6 +6,7 @@
     \____ |(____  /__|  \___  >__|   \____/
          \/     \/          \/
 ```
+# DEPRECATED ( renamed to [dat/oso](https://github.com/laromicas/datoso) )
 
 # Datero
 
