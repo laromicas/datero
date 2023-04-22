@@ -1,3 +1,5 @@
+# DEPRECATED ( renamed to [dat/oso](https://github.com/laromicas/datoso) )
+
 ``` bash
         .___       __
       __| _/____ _/  |_  ___________  ____
@@ -6,7 +8,6 @@
     \____ |(____  /__|  \___  >__|   \____/
          \/     \/          \/
 ```
-# DEPRECATED ( renamed to [dat/oso](https://github.com/laromicas/datoso) )
 
 # Datero
 
